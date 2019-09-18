@@ -55,7 +55,7 @@ struct
     type PatRow_attr    = (ValEnv * RowType, nil) cons
     type Pat_attr       = (ValEnv * Type, nil) cons
     type Ty_attr        = (Type, nil) cons
-    type TyRow_attr     = (RowType, nil) cons
+    type TyRow_attr     = (RowType, (bool, nil) cons) cons
     type 'a seq_attr    = nil
   end
 end

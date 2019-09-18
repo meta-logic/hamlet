@@ -4,7 +4,7 @@
  * Property lists
  *)
 
-structure Prop :> PROP =
+structure Prop : PROP =
 struct
   type nil           = unit
   type ('a, 'b) cons = {hd : 'a option ref, tl : 'b option ref}
@@ -20,4 +20,5 @@ struct
   fun try p = !p
   fun get p = Option.valOf(!p)
   fun set(p, x) = p := SOME x
+  fun setBool (b) = let val A = new() in set((hd A), b); A end
 end;

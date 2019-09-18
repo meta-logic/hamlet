@@ -8,9 +8,6 @@ Group is
 #endif
 
 #if defined(SMLNJ_VERSION)
-    fix/Word.sml
-    fix/Char.sml
-    fix/String.sml
 #if defined(SMLNJ_VERSION) && SMLNJ_MINOR_VERSION < 43
     fix/ListPair.sml
     fix/TextIO.sml

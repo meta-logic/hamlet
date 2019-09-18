@@ -4,7 +4,7 @@
  * Standard ML implementation main structure
  *)
 
-structure Sml : SML =
+structure Sml =
 struct
   (* Initial arguments *)
 
@@ -39,6 +39,14 @@ struct
         (J', B_BIND')
       end
 
+  fun parse1 (J, B_BIND) (filenameOpt, source) =
+      let
+        val (J', program) = Parse.parse(J, source, filenameOpt)
+        val B_BIND' = checkProgram(B_BIND, program)
+      in
+        (J', program)
+      end
+
 
   (* Parsing and elaboration *)
 
@@ -49,11 +57,24 @@ struct
         val (J', program) = Parse.parse(J, source, filenameOpt)
         val B_BIND' = checkProgram(B_BIND, program)
         val B_STAT' = Program.elabProgram true (B_STAT, program)
+        (* Additional *)
+(*        val s = PPStaticEnv.ppEnv (pEnv)
+        val outf = TextIO.stdOut
+        val _ = PrettyPrint.output(outf, s, 79);
+        val _ = TextIO.flushOut outf;*)
+        (*  *)
       in
         (J', B_BIND', B_STAT')
       end
 
-
+  fun elab1 (J, B_BIND, B_STAT) (filenameOpt, source) =
+      let
+        val (J', program) = Parse.parse(J, source, filenameOpt)
+        val B_BIND' = checkProgram(B_BIND, program)
+        val B_STAT' = Program.elabProgram true (B_STAT, program)
+      in
+        (J', B_BIND', B_STAT')
+      end
   (* Parsing and evaluation *)
 
   fun evalArg ((J, B_BIND), (B_STAT, B_DYN), s) = (J, B_BIND, B_DYN, s)
@@ -201,7 +222,7 @@ struct
 
   (* Install library *)
 
-  val basisPath = ref(SOME "basis")
+  val basisPath = ref(SOME "hamlet/basis")
   val basisFile = "all.sml"
 
   fun loadLib() =
@@ -212,7 +233,7 @@ struct
           initialArg'
         )
       | SOME path =>
-        ( TextIO.output(TextIO.stdErr, "[loading standard basis library]\n");
+        ( TextIO.output(TextIO.stdOut, "[loading standard basis library]\n");
           TextIO.flushOut TextIO.stdErr;
           fromFileQuiet (exec' false, initialArg', false)
             (OS.Path.joinDirFile{dir = path, file = basisFile})
@@ -230,7 +251,7 @@ struct
 
   fun processString (f, arg) s =
       ignore(fromString (f, arg(lib()), false) s) handle Abort => ()
-  fun processFile (f, arg) s =
+  fun processFile (f, arg) s = 
       ignore(fromFile (f, arg(lib()), false) s) handle Abort => ()
   fun processFiles (f, arg) s =
       ignore(fromFiles (f, arg(lib()), false) s) handle Abort => ()

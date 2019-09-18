@@ -320,7 +320,6 @@ struct
         PARAtExp(toExpList exps)
       end
 
-
   (* Type Expressions [Figure 16] *)
 
   fun TUPLETy[ty'@@_] = ty'
@@ -330,9 +329,14 @@ struct
           | toTyRowOpt(n, ty::tys') =
             let
               val tyrow_opt' = toTyRowOpt(n+1, tys')
-            in
+              val SOME(t @@ annot) = 
               SOME(TyRow(Lab.fromInt(n)@@left(ty), ty, tyrow_opt')
                 @@overSome(ty, tyrow_opt'))
+              val fixed = tl annot
+              val fixed = tl fixed
+              val _ = set (hd fixed, true)
+            in
+              SOME(t @@ annot)
             end
       in
         RECORDTy(toTyRowOpt(1, tys))
