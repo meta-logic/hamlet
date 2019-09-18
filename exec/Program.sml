@@ -99,8 +99,8 @@ struct
       in
         B_STAT''
       end
-        handle Error.Error =>
-          B_STAT
+        handle Error.Error => let val _ = print "ERROR\n" in
+          B_STAT end
 
 
   (* Evaluation mode *)
