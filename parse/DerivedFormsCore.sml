@@ -161,9 +161,14 @@ struct
           | toPatRowOpt(n, pat::pats') =
             let
               val patrow_opt' = toPatRowOpt(n + 1, pats')
+              val syntax @@ annot = FIELDPatRow(Lab.fromInt(n)@@left(pat), pat, patrow_opt')
+                @@overSome(pat, patrow_opt')
+              val fixed = tl annot
+              val fixed = tl fixed
+              val  _ = set (hd fixed, true)
+
             in
-              SOME(FIELDPatRow(Lab.fromInt(n)@@left(pat), pat, patrow_opt')
-                @@overSome(pat, patrow_opt'))
+              SOME(syntax @@ annot)
             end
       in
         RECORDAtPat(toPatRowOpt(1, pats))
@@ -213,9 +218,14 @@ struct
           | toExpRowOpt(n, exp::exps') =
             let
               val exprow_opt' = toExpRowOpt(n + 1, exps')
+              val syntax @@ annot = 
+              ExpRow(Lab.fromInt(n)@@left(exp), exp, exprow_opt')
+                @@overSome(exp, exprow_opt')
+              val fixed = tl annot
+              val fixed = tl fixed
+              val _ = set (hd fixed, true)              
             in
-              SOME(ExpRow(Lab.fromInt(n)@@left(exp), exp, exprow_opt')
-                @@overSome(exp, exprow_opt'))
+              SOME (syntax @@ annot)
             end
       in
         RECORDAtExp(toExpRowOpt(1, exps))
@@ -393,7 +403,16 @@ struct
   (* Declarations [Figure 17] *)
 
   fun FUNDec(tyvarseq, fvalbind) =
-        VALDec(tyvarseq, RECValBind(fvalbind)@@at(fvalbind))
+        let
+          val annot = at(fvalbind)
+          val fixed = tl annot
+          val fixed = tl fixed
+          val fixed = tl fixed
+          val _ = set (hd fixed, true)          
+        in
+          VALDec(tyvarseq, RECValBind(fvalbind)@@annot)
+        end
+        
 
   fun DATATYPEWITHTYPEDec(datbind, NONE) = DATATYPEDec(datbind)
     | DATATYPEWITHTYPEDec(datbind, SOME typbind) =

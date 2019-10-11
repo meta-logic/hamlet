@@ -124,6 +124,7 @@ struct
             end
         | DynamicObjectsCore.Pack p =>
             let
+              val _ = print "Failed 2\n"
               val _      = printPack(!s, p)
               val B_DYN' = ?evalProgram echo ((s, B_DYN), program_opt) B_DYN
             in
