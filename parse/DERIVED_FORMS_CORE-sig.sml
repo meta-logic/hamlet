@@ -51,22 +51,35 @@ sig
   (* Expressions [Figure 15] *)
 
   val UNITAtExp   : SyntaxCore.AtExp'
+  val UNITAtExp'  : SyntaxCore.AtExp'
   val TUPLEAtExp  : Exp list -> SyntaxCore.AtExp'
+  val TUPLEAtExp'  : Exp list -> SyntaxCore.AtExp'  
   val HASHAtExp   : Lab -> SyntaxCore.AtExp'
-  val CASEExp     : Exp * Match -> SyntaxCore.Exp'
-  val IFExp       : Exp * Exp * Exp -> SyntaxCore.Exp'
-  val ANDALSOExp  : Exp * Exp -> SyntaxCore.Exp'
-  val ORELSEExp   : Exp * Exp -> SyntaxCore.Exp'
   val SEQAtExp    : Exp list -> SyntaxCore.AtExp'
   val LETSEQAtExp : Dec * Exp list -> SyntaxCore.AtExp'
-  val WHILEExp    : Exp * Exp -> SyntaxCore.Exp'
   val LISTAtExp   : Exp list -> SyntaxCore.AtExp'
+  val LISTAtExp'   : Exp list -> SyntaxCore.AtExp'
+
+
+  val CASEExp     : Exp * Match -> SyntaxCore.Exp'
+  val CASEExp'     : Exp * Match -> SyntaxCore.Exp'
+  val IFExp       : Exp * Exp * Exp -> SyntaxCore.Exp'
+  val IFExp'       : Exp * Exp * Exp -> SyntaxCore.Exp'
+  val ANDALSOExp  : Exp * Exp -> SyntaxCore.Exp'
+  val ANDALSOExp'  : Exp * Exp -> SyntaxCore.Exp'
+  val ORELSEExp   : Exp * Exp -> SyntaxCore.Exp'
+  val ORELSEExp'   : Exp * Exp -> SyntaxCore.Exp'
+  val WHILEExp    : Exp * Exp -> SyntaxCore.Exp'
+
 
   (* Patterns [Figure 16] *)
 
   val UNITAtPat  : SyntaxCore.AtPat'
+  val UNITAtPat' : SyntaxCore.AtPat'
   val TUPLEAtPat : Pat list -> SyntaxCore.AtPat'
+  val TUPLEAtPat' : Pat list -> SyntaxCore.AtPat'
   val LISTAtPat  : Pat list -> SyntaxCore.AtPat'
+  val LISTAtPat'  : Pat list -> SyntaxCore.AtPat'
 
   val IDPatRow :
       VId * Ty option * Pat option * PatRow option -> SyntaxCore.PatRow'
@@ -74,6 +87,7 @@ sig
   (* Types [Figure 16] *)
 
   val TUPLETy : Ty list -> SyntaxCore.Ty'
+  val TUPLETy' : Ty list -> SyntaxCore.Ty'
 
   (* Function-value bindings [Figure 17] *)
 

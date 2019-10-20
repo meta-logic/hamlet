@@ -16,6 +16,7 @@ struct
   open AnnotationCore
   open BindingObjectsCore
   open Error
+  structure D = DerivedFormsCore
 
 
   (* Helpers *)
@@ -74,6 +75,20 @@ struct
       end
     | checkAtExp(C, PARAtExp(exp)@@A) =
         checkExp(C, exp)
+    | checkAtExp(C, UNITAtExpX@@A) =
+        ()
+    | checkAtExp(C, TUPLEAtExpX(exps)@@A) =
+      let
+        val exps = List.map (fn exp => (C, exp)) exps
+      in
+        ignore(List.map checkExp exps)
+      end
+    | checkAtExp(C, LISTAtExpX(exps)@@A) =
+      let
+        val exps = List.map (fn exp => (C, exp)) exps
+      in
+        ignore(List.map checkExp exps)
+      end      
 
 
   (* Expression Rows *)
@@ -111,6 +126,17 @@ struct
         checkExp(C, exp)
     | checkExp(C, FNExp(match)@@A) =
         checkMatch(C, match)
+    | checkExp(C, exp@@A) = 
+      let
+        val exp' = 
+          (case exp of
+            CASEExpX(exp1, match) => D.CASEExp'(exp1, match)
+            | IFExpX(exp1, exp2, exp3) => D.IFExp'(exp1, exp2, exp3)
+            | ORELSEExpX(exp1, exp2) => D.ORELSEExp'(exp1, exp2)
+            | ANDALSOExpX(exp1, exp2) => D.ANDALSOExp'(exp1, exp2))
+        in
+          checkExp(C, exp'@@A)
+        end
 
 
   (* Matches *)
@@ -320,6 +346,8 @@ struct
 
   and checkAtPat inValBind (C, WILDCARDAtPat@@A) =
         VIdMap.empty
+    | checkAtPat inValBind (C, UNITAtPatX@@A) =
+        VIdMap.empty
     | checkAtPat inValBind (C, SCONAtPat(scon@@_)@@A) =
         (case scon of
           SCon.REAL _ =>
@@ -347,6 +375,30 @@ struct
         #1(?(checkPatRow inValBind)(C, patrow_opt) (VIdMap.empty, LabSet.empty))
     | checkAtPat inValBind (C, PARAtPat(pat)@@A) =
         checkPat inValBind (C, pat)
+    | checkAtPat inValBind (C, TUPLEAtPatX(pats)@@A) = 
+        (case pats of
+          [] => VIdMap.empty
+        | pat :: pats' => 
+          let
+            val VE = checkPat inValBind (C, pat)
+            val VE' = checkAtPat inValBind (C, TUPLEAtPatX(pats')@@A)
+          in
+            VIdMap.unionWithi( fn(vid, _, _) =>
+              (* [Section 2.9, 2nd bullet] *)
+              if inValBind then errorVId(loc A, "duplicate variable ", vid)
+              else IdStatus.v) (VE, VE') end)
+    | checkAtPat inValBind (C, LISTAtPatX(pats)@@A) = 
+        (case pats of
+          [] => VIdMap.empty
+        | pat :: pats' => 
+          let
+            val VE = checkPat inValBind (C, pat)
+            val VE' = checkAtPat inValBind (C, LISTAtPatX(pats')@@A)
+          in
+            VIdMap.unionWithi( fn(vid, _, _) =>
+              (* [Section 2.9, 2nd bullet] *)
+              if inValBind then errorVId(loc A, "duplicate variable ", vid)
+              else IdStatus.v) (VE, VE') end)
 
 
   (* Pattern Rows *)
@@ -420,6 +472,12 @@ struct
       end
     | checkTy(C, PARTy(ty)@@A) =
         checkTy(C, ty)
+    | checkTy(C, TUPLETyX(tys)@@A) = 
+        let 
+          val tys = List.map (fn ty => (C,ty)) tys 
+        in
+          List.foldl TyVarSet.union TyVarSet.empty (List.map checkTy tys) 
+        end
 
 
   (* Type-expression Rows *)
@@ -473,6 +531,8 @@ struct
         VIdMap.empty
     | recAtPat(C, SCONAtPat(scon)@@A) =
         VIdMap.empty
+    | recAtPat (C, UNITAtPatX@@A) =
+        VIdMap.empty
     | recAtPat(C, IDAtPat(_, longvid@@_)@@A) =
         (case LongVId.explode longvid of
           ([], vid) => VIdMap.singleton(vid, IdStatus.v)
@@ -482,6 +542,24 @@ struct
         ?recPatRow(C, patrow_opt) VIdMap.empty
     | recAtPat(C, PARAtPat(pat)@@A) =
         recPat(C, pat)
+    | recAtPat (C, TUPLEAtPatX(pats)@@A) = 
+        (case pats of
+          [] => VIdMap.empty
+          | pat::pats' => let
+            val VE  = recPat(C, pat)
+            val VE' = recAtPat(C, TUPLEAtPatX(pats')@@A) 
+          in
+            VIdMap.unionWith #2 (VE, VE')
+          end)
+    | recAtPat (C, LISTAtPatX(pats)@@A) = 
+        (case pats of
+          [] => VIdMap.empty
+          | pat::pats' => let
+            val VE  = recPat(C, pat)
+            val VE' = recAtPat(C, LISTAtPatX(pats')@@A) 
+          in
+            VIdMap.unionWith #2 (VE, VE')
+          end)
 
   and recPatRow(C, DOTSPatRow@@A) =
         VIdMap.empty

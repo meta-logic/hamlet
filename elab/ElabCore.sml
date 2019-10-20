@@ -27,6 +27,7 @@ struct
   open AnnotationCore
   open StaticObjectsCore
   open Error
+  structure D = DerivedFormsCore
 
 
   (* Helpers for context modification and side conditions *)
@@ -159,6 +160,8 @@ struct
       in
         typeSCon D scon
       end --> elab A
+    | elabAtExp D (C, UNITAtExpX @@A) =
+      elabAtExp D  (C, D.UNITAtExp'@@A)
     | elabAtExp D (C, IDAtExp(_, longvid)@@A) =
       (* [Rule 2] *)
       let
@@ -192,6 +195,10 @@ struct
       in
         tau
       end --> elab A
+    | elabAtExp D (C, TUPLEAtExpX(exps)@@A) = 
+      elabAtExp D (C, D.TUPLEAtExp'(exps)@@A)
+    | elabAtExp D (C, LISTAtExpX(exps)@@A) = 
+      elabAtExp D (C, D.LISTAtExp'(exps)@@A)      
 
 
   (* Expression Rows *)
@@ -266,6 +273,17 @@ struct
         push(#matches D, (Context.Eof C, match));
         tau
       end --> elab A
+    | elabExp D (C, exp@@A) = let
+      val exp' = 
+        (case exp of
+          CASEExpX(exp1, match) => D.CASEExp'(exp1, match)
+          | IFExpX(exp1, exp2, exp3) => D.IFExp'(exp1, exp2, exp3)
+          | ORELSEExpX(exp1, exp2) => D.ORELSEExp'(exp1, exp2)
+          | ANDALSOExpX(exp1, exp2) => D.ANDALSOExp'(exp1, exp2))
+    in
+      elabExp D (C, exp'@@A)
+    end
+
 
 
   (* Matches *)
@@ -592,6 +610,13 @@ struct
       in
         (VE, tau)
       end --> elab A
+    | elabAtPat D (C, UNITAtPatX@@A) =  
+      elabAtPat D (C, D.UNITAtPat'@@A)
+    | elabAtPat D (C, TUPLEAtPatX(pats)@@A) =
+      elabAtPat D (C, D.TUPLEAtPat'(pats)@@A)
+    | elabAtPat D (C, LISTAtPatX(pats)@@A) =
+      elabAtPat D (C, D.LISTAtPat'(pats)@@A)
+
 
 
   (* Pattern Rows *)
@@ -616,6 +641,7 @@ struct
           Type.insertRow(rho, lab, tau)
         )
       end --> elab A
+
 
 
   (* Patterns *)
@@ -716,6 +742,9 @@ struct
         tau
       end --> elab A
 
+    | elabTy(C, TUPLETyX(ty)@@A) = 
+      elabTy(C, D.TUPLETy'(ty)@@A)
+
 
   (* Type-expression Rows *)
 
@@ -764,6 +793,24 @@ struct
         ?recPatRow(C, patrow_opt) VIdMap.empty
     | recAtPat(C, PARAtPat(pat)@@A) =
         recPat(C, pat)
+    | recAtPat(C, TUPLEAtPatX(pats)@@A) = 
+        (case pats of
+          [] => VIdMap.empty
+          | pat::pats' => let
+            val VE  = recPat(C, pat)
+            val VE' = recAtPat(C, TUPLEAtPatX(pats')@@A) 
+          in
+            VIdMap.unionWith #2 (VE, VE')
+          end)
+    | recAtPat(C, LISTAtPatX(pats)@@A) = 
+        (case pats of
+          [] => VIdMap.empty
+          | pat::pats' => let
+            val VE  = recPat(C, pat)
+            val VE' = recAtPat(C, TUPLEAtPatX(pats')@@A) 
+          in
+            VIdMap.unionWith #2 (VE, VE')
+          end)
 
   and recPatRow(C, DOTSPatRow@@A) =
         VIdMap.empty

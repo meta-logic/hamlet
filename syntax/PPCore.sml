@@ -11,6 +11,7 @@ struct
   open SyntaxCore
   open Annotation
   open PPSyntax
+  structure D = DerivedFormsCore
 
 
   (* Special constants *)
@@ -57,6 +58,12 @@ struct
         ppElem(out, i, "LETAtExp", A, [sub ppDec dec, sub ppExp exp])
     | ppAtExp(out, i, PARAtExp(exp)@@A) =
         ppElem(out, i, "PARAtExp", A, [sub ppExp exp])
+    | ppAtExp(out, i, UNITAtExpX@@A) =
+        ppElem(out, i, "UNITAtExpX", A, [])
+    | ppAtExp(out, i, TUPLEAtExpX(exps)@@A) = 
+        ppElem(out, i, "TUPLEAtExpX", A, [subs ppExp exps])
+    | ppAtExp(out, i, LISTAtExpX(exps)@@A) = 
+        ppElem(out, i, "LISTAtExpX", A, [subs ppExp exps])        
 
   and ppExpRow(out, i, ExpRow(lab, exp, exprow_opt)@@A) =
         ppElem(out, i, "ExpRow", A,
@@ -74,7 +81,14 @@ struct
         ppElem(out, i, "RAISEExp", A, [sub ppExp exp])
     | ppExp(out, i, FNExp(match)@@A) =
         ppElem(out, i, "FNExp", A, [sub ppMatch match])
-
+    | ppExp(out, i, CASEExpX(exp, match)@@A) = 
+        ppElem(out, i, "CASEExpX", A, [sub ppExp exp, sub ppMatch match])
+    | ppExp(out, i, IFExpX(exp1, exp2, exp3)@@A) = 
+        ppElem(out, i, "IFExpX", A, [sub ppExp exp1, sub ppExp exp2, sub ppExp exp3])
+    | ppExp(out, i, ORELSEExpX(exp1, exp2)@@A) = 
+        ppElem(out, i, "ORELSEExpX", A, [sub ppExp exp1, sub ppExp exp2])
+    | ppExp(out, i, ANDALSOExpX(exp1, exp2)@@A) = 
+        ppElem(out, i, "ANDALSOExpX", A, [sub ppExp exp1, sub ppExp exp2])
 
   (* Matches *)
 
@@ -143,6 +157,8 @@ struct
 
   and ppAtPat(out, i, WILDCARDAtPat@@A) =
         ppElem(out, i, "WILDCARDAtPat", A, [])
+    | ppAtPat(out, i, UNITAtPatX@@A) =
+        ppElem(out, i, "UNITAtPatX", A, [])
     | ppAtPat(out, i, SCONAtPat(scon)@@A) =
         ppElem(out, i, "SCONAtPat", A, [sub ppSCon scon])
     | ppAtPat(out, i, IDAtPat(op_opt, longvid)@@A) =
@@ -151,6 +167,10 @@ struct
         ppElem(out, i, "RECORDAtPat", A, [subo ppPatRow patrow_opt])
     | ppAtPat(out, i, PARAtPat(pat)@@A) =
         ppElem(out, i, "PARAtPat", A, [sub ppPat pat])
+    | ppAtPat(out, i, TUPLEAtPatX(pats)@@A) =
+        ppElem(out, i, "TUPLEXAtPat", A, [subs ppPat pats])
+    | ppAtPat(out, i, LISTAtPatX(pats)@@A) =
+        ppElem(out, i, "LISTAtPatX", A, [subs ppPat pats])        
 
   and ppPatRow(out, i, DOTSPatRow@@A) =
         ppElem(out, i, "DOTSPatRow", A, [])
@@ -182,6 +202,8 @@ struct
         ppElem(out, i, "ARROWTy", A, [sub ppTy ty1, sub ppTy ty2])
     | ppTy(out, i, PARTy(ty)@@A) =
         ppElem(out, i, "PARTy", A, [sub ppTy ty])
+    | ppTy(out, i, TUPLETyX(ty)@@A) = 
+        ppElem(out, i, "TUPLETyX",A, [subs ppTy ty])
 
   and ppTyRow(out, i, TyRow(lab, ty, tyrow_opt)@@A) =
         ppElem(out, i, "TyRow", A,

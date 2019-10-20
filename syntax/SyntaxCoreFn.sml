@@ -74,6 +74,9 @@ struct
     | RECORDAtExp of ExpRow option
     | LETAtExp    of Dec * Exp
     | PARAtExp    of Exp
+    | UNITAtExpX
+    | TUPLEAtExpX of Exp list
+    | LISTAtExpX of Exp list
 
   and ExpRow' =
       ExpRow      of Lab * Exp * ExpRow option
@@ -85,6 +88,11 @@ struct
     | HANDLEExp   of Exp * Match
     | RAISEExp    of Exp
     | FNExp       of Match
+    | CASEExpX    of Exp * Match 
+    | IFExpX      of Exp * Exp * Exp
+    | ANDALSOExpX of Exp * Exp 
+    | ORELSEExpX  of Exp * Exp 
+
 
 
   (* Matches [Figures 2 and 4] *)
@@ -139,6 +147,10 @@ struct
     | IDAtPat     of Op option * longVId
     | RECORDAtPat of PatRow option
     | PARAtPat    of Pat
+    | UNITAtPatX
+    | TUPLEAtPatX of Pat list
+    | LISTAtPatX of Pat list
+
 
   and PatRow' =
       DOTSPatRow
@@ -159,6 +171,7 @@ struct
     | CONTy    of Ty seq * longTyCon
     | ARROWTy  of Ty * Ty
     | PARTy    of Ty
+    | TUPLETyX  of Ty list
 
   and TyRow' =
       TyRow    of Lab * Ty * TyRow option

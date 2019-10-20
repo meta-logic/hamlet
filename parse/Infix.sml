@@ -208,12 +208,17 @@ struct
                     )
               | WILDCARDAtPat@@A =>
                   error(loc A, "misplaced wildcard pattern")
+              | UNITAtPatX@@A => 
+                  error(loc A, "misplaced unit pattern")              
               | SCONAtPat(_)@@A =>
                   error(loc A, "misplaced constant pattern")
               | RECORDAtPat(_)@@A =>
-                  error(loc A, "misplaced record or tuple pattern")
+                  error(loc A, "misplaced record pattern")
               | PARAtPat(_)@@A =>
                   error(loc A, "misplaced parenthesised pattern")
+              | TUPLEAtPatX(_)@@A =>
+                  error(loc A, "misplaced tuple pattern")
+
 
         fun maybeParenthesisedInfixClause ps =
               case List.hd ps of

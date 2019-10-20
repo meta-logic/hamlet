@@ -12,6 +12,7 @@ struct
 
   open SyntaxCore
   open Annotation
+  structure D = DerivedFormsCore
 
   type TyVarSet = TyVarSet.set
 
@@ -28,6 +29,8 @@ struct
 
   fun unguardedTyVarsAtExp(SCONAtExp(_)@@_) =
         TyVarSet.empty
+    | unguardedTyVarsAtExp(UNITAtExpX @@ _) =
+        TyVarSet.empty
     | unguardedTyVarsAtExp(IDAtExp(_, _)@@_) =
         TyVarSet.empty
     | unguardedTyVarsAtExp(RECORDAtExp(exprow_opt)@@_) =
@@ -36,6 +39,10 @@ struct
         unguardedTyVarsDec dec + unguardedTyVarsExp exp
     | unguardedTyVarsAtExp(PARAtExp(exp)@@_) =
         unguardedTyVarsExp exp
+    | unguardedTyVarsAtExp(TUPLEAtExpX(exps)@@_) = 
+        List.foldl (op+) (TyVarSet.empty) (List.map unguardedTyVarsExp exps)
+    | unguardedTyVarsAtExp(LISTAtExpX(exps)@@_) = 
+        List.foldl (op+) (TyVarSet.empty) (List.map unguardedTyVarsExp exps)
 
   and unguardedTyVarsExpRow(ExpRow(lab, exp, exprow_opt)@@_) =
         unguardedTyVarsExp exp + ?unguardedTyVarsExpRow exprow_opt
@@ -52,6 +59,18 @@ struct
         unguardedTyVarsExp exp
     | unguardedTyVarsExp(FNExp(match)@@_) =
         unguardedTyVarsMatch match
+    | unguardedTyVarsExp(exp@@A) = 
+      let
+        val exp' = 
+          (case exp of
+              CASEExpX(exp1, match) => D.CASEExp'(exp1, match)
+              | IFExpX(exp1, exp2, exp3) => D.IFExp'(exp1, exp2, exp3)
+              | ORELSEExpX(exp1, exp2) => D.ORELSEExp'(exp1, exp2)
+              | ANDALSOExpX(exp1, exp2) => D.ANDALSOExp'(exp1, exp2))              
+      in
+        unguardedTyVarsExp(exp'@@A)
+      end
+
 
   and unguardedTyVarsMatch(Match(mrule, match_opt)@@_) =
         unguardedTyVarsMrule mrule + ?unguardedTyVarsMatch match_opt
@@ -97,10 +116,16 @@ struct
         TyVarSet.empty
     | unguardedTyVarsAtPat(IDAtPat(_, _)@@_) =
         TyVarSet.empty
+    | unguardedTyVarsAtPat(UNITAtPatX@@_) =
+        TyVarSet.empty
     | unguardedTyVarsAtPat(RECORDAtPat(patrow_opt)@@_) =
         ?unguardedTyVarsPatRow patrow_opt
     | unguardedTyVarsAtPat(PARAtPat(pat)@@_) =
         unguardedTyVarsPat pat
+    | unguardedTyVarsAtPat(TUPLEAtPatX(pats)@@_) =
+        List.foldl (op+) (TyVarSet.empty) (List.map unguardedTyVarsPat pats)   
+    | unguardedTyVarsAtPat(LISTAtPatX(pats)@@_) =
+        List.foldl (op+) (TyVarSet.empty) (List.map unguardedTyVarsPat pats)             
 
   and unguardedTyVarsPatRow(DOTSPatRow@@_) =
         TyVarSet.empty
@@ -126,6 +151,9 @@ struct
         unguardedTyVarsTy ty + unguardedTyVarsTy ty'
     | unguardedTyVarsTy(PARTy(ty)@@_) =
         unguardedTyVarsTy ty
+    | unguardedTyVarsTy(TUPLETyX(ty)@@A) =
+        unguardedTyVarsTy(D.TUPLETy'(ty)@@A)
+
 
   and unguardedTyVarsTyRow(TyRow(lab, ty, tyrow_opt)@@_) =
         unguardedTyVarsTy ty + ?unguardedTyVarsTyRow tyrow_opt

@@ -16,7 +16,7 @@
  *   Appendix B, Figure 22].
  *)
 
-structure DerivedFormsCore :> DERIVED_FORMS_CORE =
+structure DerivedFormsCore : DERIVED_FORMS_CORE =
 struct
   (* Import *)
 
@@ -70,6 +70,8 @@ struct
         ARROWTy(copyTy ty1, copyTy ty2)@@copy(A)
     | copyTy(PARTy(ty)@@A) =
         PARTy(copyTy ty)@@copy(A)
+    | copyTy(TUPLETyX(tys)@@A) = 
+        TUPLETyX(List.map copyTy tys)@@copy(A)
 
   and copyTyRow(TyRow(lab@@A', ty, tyrow_opt)@@A) =
         TyRow(lab@@copy(A'), copyTy ty, Option.map copyTyRow tyrow_opt)@@copy(A)
@@ -95,6 +97,8 @@ struct
           @@copy(A)
     | replaceTy tyvarseq_tyseq (PARTy(ty)@@A) =
         PARTy(replaceTy tyvarseq_tyseq ty)@@copy(A)
+    | replaceTy tyvarseq_tyseq (TUPLETyX(tys)@@A) = 
+        TUPLETyX(List.map (replaceTy tyvarseq_tyseq) tys)@@copy(A)
 
   and replaceTyRow tyvarseq_tyseq (TyRow(lab@@A', ty, tyrow_opt)@@A) =
         TyRow(lab@@copy(A'), replaceTy tyvarseq_tyseq ty, 
@@ -124,6 +128,8 @@ struct
         ARROWTy(rewriteTy typbind ty1, rewriteTy typbind ty2)@@A
     | rewriteTy typbind (PARTy(ty)@@A) =
         PARTy(rewriteTy typbind ty)@@A
+    | rewriteTy typbind (TUPLETyX(tys)@@A) = 
+        TUPLETyX(List.map (rewriteTy typbind) tys)@@A
 
   and rewriteTyRow typbind (TyRow(lab, ty, tyrow_opt)@@A) =
         TyRow(lab, rewriteTy typbind ty,
@@ -152,30 +158,31 @@ struct
 
   (* Patterns [Figure 16] *)
 
-  val UNITAtPat = RECORDAtPat(NONE)
+  val UNITAtPat = UNITAtPatX
+  val UNITAtPat' = RECORDAtPat(NONE)
 
-  fun TUPLEAtPat[pat] = PARAtPat(pat)
-    | TUPLEAtPat(pats)  =
+
+  fun TUPLEAtPat(pats) = TUPLEAtPatX(pats)
+
+  fun TUPLEAtPat'[pat] = PARAtPat(pat)
+    | TUPLEAtPat'(pats)  =
       let
         fun toPatRowOpt(n, []) = NONE
           | toPatRowOpt(n, pat::pats') =
             let
               val patrow_opt' = toPatRowOpt(n + 1, pats')
-              val syntax @@ annot = FIELDPatRow(Lab.fromInt(n)@@left(pat), pat, patrow_opt')
-                @@overSome(pat, patrow_opt')
-              val fixed = tl annot
-              val fixed = tl fixed
-              val  _ = set (hd fixed, true)
-
             in
-              SOME(syntax @@ annot)
+              SOME(FIELDPatRow(Lab.fromInt(n)@@left(pat), pat, patrow_opt')
+                @@overSome(pat, patrow_opt'))
             end
       in
         RECORDAtPat(toPatRowOpt(1, pats))
       end
 
-  fun LISTAtPat[] = IDAtPat(NONE, LongVId.fromId(vidNIL)@@nowhere())
-    | LISTAtPat(pats) =
+  fun LISTAtPat(pats) = LISTAtPatX(pats)
+
+  fun LISTAtPat'[] = IDAtPat(NONE, LongVId.fromId(vidNIL)@@nowhere())
+    | LISTAtPat'(pats) =
       let
         val last = List.hd(List.rev pats)
         fun toPatList[] = idPat(vidNIL@@right(last))
@@ -209,23 +216,21 @@ struct
 
   (* Expressions [Figure 15] *)
 
-  val UNITAtExp = RECORDAtExp(NONE)
+  val UNITAtExp = UNITAtExpX
+  val UNITAtExp' = RECORDAtExp(NONE)
 
-  fun TUPLEAtExp[exp]  = PARAtExp(exp)
-    | TUPLEAtExp(exps) =
+  fun TUPLEAtExp(exps) = TUPLEAtExpX(exps)
+
+  fun TUPLEAtExp'[exp]  = PARAtExp(exp)
+    | TUPLEAtExp'(exps) =
       let
         fun toExpRowOpt(n, []) = NONE
           | toExpRowOpt(n, exp::exps') =
             let
-              val exprow_opt' = toExpRowOpt(n + 1, exps')
-              val syntax @@ annot = 
-              ExpRow(Lab.fromInt(n)@@left(exp), exp, exprow_opt')
-                @@overSome(exp, exprow_opt')
-              val fixed = tl annot
-              val fixed = tl fixed
-              val _ = set (hd fixed, true)              
+              val exprow_opt' = toExpRowOpt(n + 1, exps')            
             in
-              SOME (syntax @@ annot)
+              SOME(ExpRow(Lab.fromInt(n)@@left(exp), exp, exprow_opt')
+              @@overSome(exp, exprow_opt'))
             end
       in
         RECORDAtExp(toExpRowOpt(1, exps))
@@ -245,14 +250,20 @@ struct
       end
 
   fun CASEExp(exp, match) =
+      CASEExpX(exp, match)
+      
+  fun CASEExp'(exp, match) =
       let
         val fnAtExp  = PARAtExp(FNExp(match)@@at(match))@@at(match)
         val argAtExp = PARAtExp(exp)@@at(exp)
       in
         APPExp(atExp(fnAtExp), argAtExp)
-      end
+      end      
 
-  fun IFExp(exp1, exp2, exp3) =
+  fun IFExp(exp1, exp2, exp3) = 
+      IFExpX(exp1, exp2, exp3)
+
+  fun IFExp'(exp1, exp2, exp3) =
       let
         val truePat    = idPat(vidTRUE@@left(exp2))
         val falsePat   = idPat(vidFALSE@@left(exp3))
@@ -262,12 +273,18 @@ struct
         val match      = Match(trueMrule, SOME elseMatch)@@over(exp2, exp3)
       in
         CASEExp(exp1, match)
-      end
+      end      
 
-  fun ORELSEExp (exp1, exp2) =
+  fun ORELSEExp(exp1, exp2) =
+      ORELSEExpX(exp1, exp2)
+
+  fun ORELSEExp'(exp1, exp2) =
         IFExp(exp1, idExp(vidTRUE@@left(exp2)), exp2)
 
   fun ANDALSOExp(exp1, exp2) =
+        ANDALSOExpX(exp1, exp2)
+
+  fun ANDALSOExp'(exp1, exp2) =
         IFExp(exp1, exp2, idExp(vidFALSE@@right(exp2)))
 
   fun SEQAtExp(exps) =
@@ -314,8 +331,10 @@ struct
         ATExp(LETAtExp(dec, callExp())@@at(dec))
       end
 
-  fun LISTAtExp[] = IDAtExp(NONE, LongVId.fromId(vidNIL)@@nowhere())
-    | LISTAtExp(exps) =
+  fun LISTAtExp(exps) = LISTAtExpX(exps)
+
+  fun LISTAtExp'[] = IDAtExp(NONE, LongVId.fromId(vidNIL)@@nowhere())
+    | LISTAtExp'(exps) =
       let
         val last = List.hd(List.rev exps)
         fun toExpList[] = idExp(vidNIL@@right(last))
@@ -332,21 +351,18 @@ struct
 
   (* Type Expressions [Figure 16] *)
 
-  fun TUPLETy[ty'@@_] = ty'
-    | TUPLETy(tys) =
+  fun TUPLETy(tys) = TUPLETyX tys
+
+  fun TUPLETy'[ty'@@_] = ty'
+    | TUPLETy'(tys) = 
       let
         fun toTyRowOpt(n,   []    ) = NONE
           | toTyRowOpt(n, ty::tys') =
             let
               val tyrow_opt' = toTyRowOpt(n+1, tys')
-              val SOME(t @@ annot) = 
+            in
               SOME(TyRow(Lab.fromInt(n)@@left(ty), ty, tyrow_opt')
                 @@overSome(ty, tyrow_opt'))
-              val fixed = tl annot
-              val fixed = tl fixed
-              val _ = set (hd fixed, true)
-            in
-              SOME(t @@ annot)
             end
       in
         RECORDTy(toTyRowOpt(1, tys))

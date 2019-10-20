@@ -14,6 +14,7 @@ struct
 
   open SyntaxCore
   open AnnotationCore
+  structure D = DerivedFormsCore
 
 
   (*
@@ -114,7 +115,7 @@ struct
         matchPat(E, desc, pat, MATCH'(loc A, match_opt),
           extend(sets, #matches, loc A))
 
-  and matchAtPat(E, desc, atpat@@_, context, sets) =
+  and matchAtPat(E, desc, atpat@@A, context, sets) =
       case atpat of
           WILDCARDAtPat =>
             succeed(E, desc, context, sets)
@@ -136,6 +137,11 @@ struct
             matchPatRowOpt(E, desc, patrow_opt, context, sets)
         | PARAtPat(pat) =>
             matchPat(E, desc, pat, context, sets)
+        | TUPLEAtPatX(pats) => 
+            matchAtPat(E, desc, D.TUPLEAtPat'(pats)@@A, context, sets)
+        | LISTAtPatX(pats) =>
+            matchAtPat(E, desc, D.LISTAtPat'(pats)@@A, context, sets)
+
 
   and matchPat(E, desc, pat@@_, context, sets) =
       case pat of

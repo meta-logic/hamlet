@@ -43,8 +43,7 @@ sig
 
   val checkDec          : Context * Dec -> Env
   val checkTy           : Context * Ty -> TyVarSet
-  val checkTyVarseq     : TyVar seq -> TyVarSet
-
+  val checkTyVarseq     : TyVar seq -> TyVarSet					   
   val isValidBindVId    : VId -> bool
   val isValidConBindVId : VId -> bool
 end;

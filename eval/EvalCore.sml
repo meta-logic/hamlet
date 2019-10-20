@@ -20,6 +20,7 @@ struct
   open AnnotationCore
   open DynamicObjectsCore
   open Error
+  structure D = DerivedFormsCore
 
 
   (* Helpers for environment modification *)
@@ -112,6 +113,13 @@ struct
       in
         v
       end
+    | evalAtExp((s, E), UNITAtExpX@@A) =
+      evalAtExp((s,E), D.UNITAtExp'@@A)
+    | evalAtExp((s, E), TUPLEAtExpX(exps)@@A) =
+      evalAtExp((s,E), D.TUPLEAtExp'(exps)@@A)
+    | evalAtExp((s, E), LISTAtExpX(exps)@@A) = 
+      evalAtExp((s, E), D.LISTAtExp'(exps)@@A)
+
 
 
   (* Expression Rows *)
@@ -241,6 +249,17 @@ struct
       in
         FcnClosure(match, E, VIdMap.empty)
       end
+    | evalExp((s, E), exp@@A) = let
+      val exp' = 
+        (case exp of
+          CASEExpX(exp1, match) => D.CASEExp'(exp1, match)
+          | IFExpX(exp1, exp2, exp3) => D.IFExp'(exp1, exp2, exp3)
+          | ORELSEExpX(exp1, exp2) => D.ORELSEExp'(exp1, exp2)
+          | ANDALSOExpX(exp1, exp2) => D.ANDALSOExp'(exp1, exp2))
+    in
+      evalExp((s, E), exp'@@A)
+    end
+
 
 
   (* Matches *)
@@ -510,7 +529,12 @@ struct
       in
         VE
       end
-
+    | evalAtPat((s, E, v), UNITAtPatX@@A) =
+      evalAtPat((s, E, v), D.UNITAtPat'@@A)
+    | evalAtPat((s, E, v), TUPLEAtPatX(pats)@@A) = 
+      evalAtPat((s, E, v), D.TUPLEAtPat'(pats)@@A)
+    | evalAtPat((s, E, v), LISTAtPatX(pats)@@A) = 
+      evalAtPat((s, E, v), D.LISTAtPat'(pats)@@A)
 
   (* Pattern Rows *)
 

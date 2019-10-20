@@ -41,7 +41,7 @@ struct
     type longStrId_attr = (Env, nil) cons
 
     type AtExp_attr     = (Type, nil) cons
-    type ExpRow_attr    = (RowType, (bool, nil) cons) cons
+    type ExpRow_attr    = (RowType, nil) cons
     type Exp_attr       = (Type, nil) cons
     type Match_attr     = (Type, (Exhaustive, nil) cons) cons
     type Mrule_attr     = (Type, nil) cons
@@ -52,10 +52,10 @@ struct
     type ConBind_attr   = (ValEnv, nil) cons
     type ExBind_attr    = (ValEnv, nil) cons
     type AtPat_attr     = (ValEnv * Type, nil) cons
-    type PatRow_attr    = (ValEnv * RowType, (bool, nil) cons) cons
+    type PatRow_attr    = (ValEnv * RowType, nil) cons
     type Pat_attr       = (ValEnv * Type, nil) cons
     type Ty_attr        = (Type, nil) cons
-    type TyRow_attr     = (RowType, (bool, nil) cons) cons
+    type TyRow_attr     = (RowType, nil) cons
     type 'a seq_attr    = nil
   end
 end

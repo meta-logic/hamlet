@@ -24,6 +24,8 @@ struct
         false
     | bindsAtPat(SCONAtPat(scon)@@_, vid) =
         false
+    | bindsAtPat(UNITAtPatX@@_,vid) = 
+        false 
     | bindsAtPat(IDAtPat(_, longvid@@_)@@_, vid) =
       let
         val (strids, vid') = LongVId.explode longvid
@@ -34,6 +36,19 @@ struct
         ?bindsPatRow(patrow_opt, vid)
     | bindsAtPat(PARAtPat(pat)@@_, vid) =
         bindsPat(pat, vid)
+    | bindsAtPat(TUPLEAtPatX(pats)@@_, vid) = 
+      let
+        val pats = List.map (fn pat => (pat, vid)) pats
+      in
+        List.foldl (fn (a, b) => a orelse b) false (List.map bindsPat pats)
+      end
+    | bindsAtPat(LISTAtPatX(pats)@@_, vid) = 
+      let
+        val pats = List.map (fn pat => (pat, vid)) pats
+      in
+        List.foldl (fn (a, b) => a orelse b) false (List.map bindsPat pats)
+      end
+
 
   and bindsPatRow(DOTSPatRow@@_, vid) =
         false
@@ -59,12 +74,19 @@ struct
         true
     | isNonExpansiveAtExp C (IDAtExp(_, longvid)@@_) =
         true
+    | isNonExpansiveAtExp C (UNITAtExpX@@_) = 
+        true
     | isNonExpansiveAtExp C (RECORDAtExp(exprow_opt)@@_) =
         ?isNonExpansiveExpRow C exprow_opt
     | isNonExpansiveAtExp C (PARAtExp(exp)@@_) =
         isNonExpansiveExp C exp
+    | isNonExpansiveAtExp C (TUPLEAtExpX(exps)@@_) = 
+        List.foldl (fn(a, b) => a andalso b) true (List.map (fn exp => isNonExpansiveExp C exp) exps)
+    | isNonExpansiveAtExp C (LISTAtExpX(exps)@@_) = 
+        List.foldl (fn(a, b) => a andalso b) true (List.map (fn exp => isNonExpansiveExp C exp) exps)
     | isNonExpansiveAtExp C _ =
         false
+
 
   and isNonExpansiveExpRow C (ExpRow(lab, exp, exprow_opt)@@_) =
         isNonExpansiveExp C exp andalso ?isNonExpansiveExpRow C exprow_opt
