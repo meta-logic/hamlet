@@ -13,3 +13,4 @@ doc/*.pdf
 doc/*.ps
 doc/*.toc
 *.bat
+*/.cm
