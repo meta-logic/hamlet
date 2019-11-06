@@ -444,8 +444,7 @@ struct
         Type.unify(tau, tau_exp) handle Type.Unify =>
           error(loc A, "type mismatch between pattern and expression");
         (* Further restriction [Section 4.11, item 3] *)
-        (if #level D = TOP then StaticObjectsCore.NonExhaustive else
-          CheckPattern.checkPat(Context.Eof C, pat) --> exhaustive A
+        ((CheckPattern.checkPat(Context.Eof C, pat)) --> exhaustive A
         );
         VIdMap.unionWith #2 (VE, VE')
       end --> elab A
