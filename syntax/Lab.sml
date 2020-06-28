@@ -6,7 +6,7 @@
  * Definition, Sections 2.4 and 4.2
  *)
 
-structure Lab :> LAB =
+structure Lab : LAB =
 struct
   (* Type [Section 2.4] *)
 
