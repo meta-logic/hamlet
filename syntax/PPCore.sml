@@ -89,6 +89,8 @@ struct
         ppElem(out, i, "ORELSEExpX", A, [sub ppExp exp1, sub ppExp exp2])
     | ppExp(out, i, ANDALSOExpX(exp1, exp2)@@A) = 
         ppElem(out, i, "ANDALSOExpX", A, [sub ppExp exp1, sub ppExp exp2])
+    | ppExp (out, i, INFIXExpX(exp, atexp)@@A) =
+      ppElem(out, i, "INFIXExpX", A, [sub ppExp exp, sub ppAtExp atexp])
 
   (* Matches *)
 
@@ -182,6 +184,8 @@ struct
         ppElem(out, i, "ATPat", A, [sub ppAtPat atpat])
     | ppPat(out, i, CONPat(op_opt, longvid, atpat)@@A) =
         ppElem(out, i, "CONPat", A, [sub ppLongVId longvid, sub ppAtPat atpat])
+    | ppPat(out, i, INFIXPatX(op_opt, longvid, atpat)@@A) =
+      ppElem(out, i, "INFIXPatX", A, [sub ppLongVId longvid, sub ppAtPat atpat])
     | ppPat(out, i, COLONPat(pat, ty)@@A) =
         ppElem(out, i, "COLONPat", A, [sub ppPat pat, sub ppTy ty])
     | ppPat(out, i, ASPat(op_opt, vid, ty_opt, pat)@@A) =

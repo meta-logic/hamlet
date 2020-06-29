@@ -143,7 +143,7 @@ struct
             matchAtPat(E, desc, D.LISTAtPat'(pats)@@A, context, sets)
 
 
-  and matchPat(E, desc, pat@@_, context, sets) =
+  and matchPat(E, desc, pat@@A, context, sets) =
       case pat of
           ATPat(atpat) =>
             matchAtPat(E, desc, atpat, context, sets)
@@ -156,6 +156,7 @@ struct
                     TyName.span(Type.tyname tau), SOME atpat, context, sets)
               | _ => raise Fail "CheckPattern.matchPat: invalid CONPat"
             )
+        | INFIXPatX(pat) => matchPat(E, desc, CONPat(pat)@@A, context, sets)
         | COLONPat(pat, ty) =>
             matchPat(E, desc, pat, context, sets)
         | ASPat(_, _, _, pat) =>

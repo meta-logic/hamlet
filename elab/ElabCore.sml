@@ -279,7 +279,8 @@ struct
           CASEExpX(exp1, match) => D.CASEExp'(exp1, match)
           | IFExpX(exp1, exp2, exp3) => D.IFExp'(exp1, exp2, exp3)
           | ORELSEExpX(exp1, exp2) => D.ORELSEExp'(exp1, exp2)
-          | ANDALSOExpX(exp1, exp2) => D.ANDALSOExp'(exp1, exp2))
+          | ANDALSOExpX(exp1, exp2) => D.ANDALSOExp'(exp1, exp2)
+          | INFIXExpX (exp, atexp) => APPExp(exp, atexp))
     in
       elabExp D (C, exp'@@A)
     end
@@ -668,6 +669,7 @@ struct
           error(loc A, "type mismatch in constructor pattern");
         (VE, tau)
       end --> elab A
+    | elabPat D (C, INFIXPatX(pat)@@A) = elabPat D (C, CONPat(pat)@@A)
     | elabPat D (C, COLONPat(pat, ty)@@A) =
       (* [Rule 42] *)
       let

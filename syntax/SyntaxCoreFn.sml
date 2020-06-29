@@ -93,6 +93,7 @@ struct
     | ANDALSOExpX of Exp * Exp 
     | ORELSEExpX  of Exp * Exp 
 
+    | INFIXExpX of Exp * AtExp
 
 
   (* Matches [Figures 2 and 4] *)
@@ -161,7 +162,7 @@ struct
     | CONPat      of Op option * longVId * AtPat
     | COLONPat    of Pat * Ty
     | ASPat       of Op option * VId * Ty option * Pat
-
+    | INFIXPatX   of Op option * longVId * AtPat
 
   (* Type expressions [Figures 2 and 3] *)
 

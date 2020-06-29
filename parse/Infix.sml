@@ -123,20 +123,17 @@ struct
 
   fun appExp(atexp1, atexp2) =
       let
-        val appExp = APPExp(atExp(atexp1), atexp2)@@over(atexp1, atexp2)
+        val appExp = INFIXExpX(atExp(atexp1), atexp2)@@over(atexp1, atexp2)
       in
         PARAtExp(appExp)@@at(appExp)
       end
 
   fun pairExp(atexp1, atexp2) =
       let
-        val lab1    = Lab.fromInt(1)@@left(atexp1)
-        val lab2    = Lab.fromInt(2)@@left(atexp2)
-        val exprow2 = ExpRow(lab2, atExp atexp2, NONE)@@at(atexp2)
-        val exprow1 =
-            ExpRow(lab1, atExp atexp1, SOME exprow2)@@over(atexp1, atexp2)
+          val expList = [atExp atexp1, atExp atexp2]
       in
-        RECORDAtExp(SOME exprow1)@@at(exprow1)
+          (TUPLEAtExpX expList)@@over(atexp1, atexp2)
+        (* RECORDAtExp(SOME exprow1)@@at(exprow1) *)
       end
 
   fun infExp(atexp1, IDAtExp(NONE, longvid)@@A, atexp2) =
@@ -154,7 +151,7 @@ struct
 
   fun conPat(idPat as IDAtPat(op_opt, longvid)@@_, atpat) =
       let
-        val conPat = CONPat(op_opt, longvid, atpat)@@over(idPat, atpat)
+        val conPat = INFIXPatX(op_opt, longvid, atpat)@@over(idPat, atpat)
       in
         PARAtPat(conPat)@@at(conPat)
       end
@@ -163,13 +160,9 @@ struct
 
   fun pairPat(atpat1, atpat2) =
       let
-        val lab1    = Lab.fromInt(1)@@left(atpat1)
-        val lab2    = Lab.fromInt(2)@@left(atpat2)
-        val patrow2 = FIELDPatRow(lab2, atPat(atpat2), NONE)@@at(atpat2)
-        val patrow1 =
-            FIELDPatRow(lab1, atPat(atpat1), SOME patrow2)@@over(atpat1, atpat2)
+          val patList = [atPat atpat1, atPat atpat2]
       in
-        RECORDAtPat(SOME patrow1)@@at(patrow1)
+          (TUPLEAtPatX patList)@@over(atpat1, atpat2)
       end
 
   fun infPat(atpat1, IDAtPat(NONE, longvid)@@A, atpat2) =
@@ -235,6 +228,19 @@ struct
                     ( checkNonfixity(List.tl ps);
                       (NONE, LongVId.toId(longvid)@@A, atpat::List.tl atpats)
                     )
+              |  NONFIX(PARAtPat(INFIXPatX(NONE, longvid@@A, atpat)@@A')@@_) =>
+                 if not(LongVId.isShort longvid) then
+                     errorLongVId(loc A, "misplaced long identifier ", longvid)
+                 else if not(isInfix J longvid) then
+                     error(loc A', "misplaced non-infix pattern")
+                 else
+                     (* Now, longvid has infix status but is sans `op',
+                      * so it can only result from resolving an
+                      * appropriate infix construction.
+                      *)
+                     ( checkNonfixity(List.tl ps);
+                       (NONE, LongVId.toId(longvid)@@A, atpat::List.tl atpats)
+                     )
               | NONFIX(PARAtPat(ATPat(atpat as PARAtPat(_)@@_)@@_)@@_) =>
                   maybeParenthesisedInfixClause(NONFIX(atpat)::List.tl ps)
               | NONFIX(PARAtPat(pat)@@A) =>

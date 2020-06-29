@@ -133,7 +133,8 @@ struct
             CASEExpX(exp1, match) => D.CASEExp'(exp1, match)
             | IFExpX(exp1, exp2, exp3) => D.IFExp'(exp1, exp2, exp3)
             | ORELSEExpX(exp1, exp2) => D.ORELSEExp'(exp1, exp2)
-            | ANDALSOExpX(exp1, exp2) => D.ANDALSOExp'(exp1, exp2))
+            | ANDALSOExpX(exp1, exp2) => D.ANDALSOExp'(exp1, exp2)
+            | INFIXExpX (exp, atexp) => APPExp(exp, atexp))
         in
           checkExp(C, exp'@@A)
         end
@@ -432,6 +433,8 @@ struct
   and checkPat inValBind (C, ATPat(atpat)@@A) =
         checkAtPat inValBind (C, atpat)
     | checkPat inValBind (C, CONPat(_, longvid, atpat)@@A) =
+      checkAtPat inValBind (C, atpat)
+    | checkPat inValBind (C, INFIXPatX(_, longvid, atpat)@@A) =
         checkAtPat inValBind (C, atpat)
     | checkPat inValBind (C, COLONPat(pat, ty)@@A) =
       ( ignore(checkTy(C, ty));

@@ -63,10 +63,11 @@ struct
       let
         val exp' = 
           (case exp of
-              CASEExpX(exp1, match) => D.CASEExp'(exp1, match)
+               CASEExpX(exp1, match) => D.CASEExp'(exp1, match)
               | IFExpX(exp1, exp2, exp3) => D.IFExp'(exp1, exp2, exp3)
               | ORELSEExpX(exp1, exp2) => D.ORELSEExp'(exp1, exp2)
-              | ANDALSOExpX(exp1, exp2) => D.ANDALSOExp'(exp1, exp2))              
+              | ANDALSOExpX(exp1, exp2) => D.ANDALSOExp'(exp1, exp2)
+              | INFIXExpX(exp, atexp) => APPExp(exp, atexp)) 
       in
         unguardedTyVarsExp(exp'@@A)
       end
@@ -135,6 +136,8 @@ struct
   and unguardedTyVarsPat(ATPat(atpat)@@_) =
         unguardedTyVarsAtPat atpat
     | unguardedTyVarsPat(CONPat(_, longvid, atpat)@@_) =
+      unguardedTyVarsAtPat atpat
+    | unguardedTyVarsPat(INFIXPatX(_, longvid, atpat)@@_) =
         unguardedTyVarsAtPat atpat
     | unguardedTyVarsPat(COLONPat(pat, ty)@@_) =
         unguardedTyVarsPat pat + unguardedTyVarsTy ty

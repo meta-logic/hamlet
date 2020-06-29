@@ -222,7 +222,7 @@ struct
 
   (* Install library *)
 
-  val basisPath = ref(SOME "hamlet/basis")
+  val basisPath = ref(SOME "./basis")
   val basisFile = "all.sml"
 
   fun loadLib() =
