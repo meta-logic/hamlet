@@ -255,7 +255,8 @@ struct
           CASEExpX(exp1, match) => D.CASEExp'(exp1, match)
           | IFExpX(exp1, exp2, exp3) => D.IFExp'(exp1, exp2, exp3)
           | ORELSEExpX(exp1, exp2) => D.ORELSEExp'(exp1, exp2)
-          | ANDALSOExpX(exp1, exp2) => D.ANDALSOExp'(exp1, exp2))
+          | ANDALSOExpX(exp1, exp2) => D.ANDALSOExp'(exp1, exp2)
+          | INFIXExpX (exp, atexp) => APPExp(exp, atexp))
     in
       evalExp((s, E), exp'@@A)
     end
