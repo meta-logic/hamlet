@@ -572,6 +572,7 @@ struct
       in
         VE
       end
+    | evalPat(env, INFIXPatX (pat)@@A) = evalPat (env, CONPat(pat)@@A)
     | evalPat((s, E, v), CONPat(_, longvid as longvid'@@A', atpat)@@A) =
       (* [Rules 144 to 148] *)
       let

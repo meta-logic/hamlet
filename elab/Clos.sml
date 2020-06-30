@@ -58,6 +58,8 @@ struct
   and bindsPat(ATPat(atpat)@@_, vid) =
         bindsAtPat(atpat, vid)
     | bindsPat(CONPat(_, longvid, atpat)@@_, vid) =
+      bindsAtPat(atpat, vid)
+    | bindsPat(INFIXPatX(_, longvid, atpat)@@_, vid) =
         bindsAtPat(atpat, vid)
     | bindsPat(COLONPat(pat, ty)@@_, vid) =
         bindsPat(pat, vid)
