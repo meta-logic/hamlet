@@ -171,8 +171,7 @@ struct
       in
           PARAtPat(conPat)@@at(conPat)
       end
-    | conPat(_, _@@A) =
-      error(loc A, "misplaced atomic pattern'")
+    | conPat'(_, _@@A) = error(loc A, "misplaced atomic pattern'")
 
 
   fun pairPat(atpat1, atpat2) =
