@@ -123,9 +123,16 @@ struct
 
   fun appExp(atexp1, atexp2) =
       let
-        val appExp = INFIXExpX(atExp(atexp1), atexp2)@@over(atexp1, atexp2)
+        val appExp = APPExp(atExp(atexp1), atexp2)@@over(atexp1, atexp2)
       in
         PARAtExp(appExp)@@at(appExp)
+      end
+
+  fun appExp'(atexp1, atexp2) =
+      let
+          val appExp = INFIXExpX(atExp(atexp1), atexp2)@@over(atexp1, atexp2)
+      in
+          PARAtExp(appExp)@@at(appExp)
       end
 
   fun pairExp(atexp1, atexp2) =
@@ -137,7 +144,7 @@ struct
       end
 
   fun infExp(atexp1, IDAtExp(NONE, longvid)@@A, atexp2) =
-        appExp(IDAtExp(NONE, longvid)@@A, pairExp(atexp1, atexp2))
+        appExp'(IDAtExp(NONE, longvid)@@A, pairExp(atexp1, atexp2))
     | infExp(_, _, _) =
         raise Fail "Infix.infExp: inconsistency"
 
@@ -151,12 +158,22 @@ struct
 
   fun conPat(idPat as IDAtPat(op_opt, longvid)@@_, atpat) =
       let
-        val conPat = INFIXPatX(op_opt, longvid, atpat)@@over(idPat, atpat)
+        val conPat = CONPat(op_opt, longvid, atpat)@@over(idPat, atpat)
       in
         PARAtPat(conPat)@@at(conPat)
       end
     | conPat(_, _@@A) =
         error(loc A, "misplaced atomic pattern")
+
+  fun conPat'(idPat as IDAtPat(op_opt, longvid)@@_, atpat) =
+      let
+          val conPat = INFIXPatX(op_opt, longvid, atpat)@@over(idPat, atpat)
+      in
+          PARAtPat(conPat)@@at(conPat)
+      end
+    | conPat(_, _@@A) =
+      error(loc A, "misplaced atomic pattern'")
+
 
   fun pairPat(atpat1, atpat2) =
       let
@@ -166,7 +183,7 @@ struct
       end
 
   fun infPat(atpat1, IDAtPat(NONE, longvid)@@A, atpat2) =
-        conPat(IDAtPat(NONE, longvid)@@A, pairPat(atpat1, atpat2))
+      conPat'(IDAtPat(NONE, longvid)@@A, pairPat(atpat1, atpat2))
     | infPat(_, _, _) =
         raise Fail "Infix.infPat: inconsistency"
 
