@@ -8,7 +8,7 @@
  * Notes: see TYNAME-sig.sml
  *)
 
-structure TyName :> TYNAME =
+structure TyName : TYNAME =
 struct
   (* Type [Section 4.1] *)
 

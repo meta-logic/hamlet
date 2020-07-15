@@ -13,7 +13,7 @@
  * - Tyvars generated from integers are mapped to 'a,..,'z,'a1,..,'z1,'a2,...
  *)
 
-structure TyVar :> TYVAR =
+structure TyVar : TYVAR =
 struct
   (* Import types *)
 
