@@ -152,6 +152,11 @@ struct
           [sub ppFunId funid, sub PPCore.ppStrId strid,
             sub ppSigExp sigexp, sub ppStrExp strexp,
               subo ppFunBind funbind_opt])
+    | ppFunBind (out, i,
+                 SPECFunBindX(funid, spec, strexp, funbind_opt)@@A
+                ) =
+      ppElem(out, i, "SPECFunBindX", A,
+            [sub ppFunId funid, sub ppSpec spec, sub ppStrExp strexp, subo ppFunBind funbind_opt])
 
 
   (* Top-level declarations *)

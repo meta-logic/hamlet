@@ -137,6 +137,8 @@ struct
 
   and FunBind' =
       FunBind of FunId * StrId * SigExp * StrExp * FunBind option
+      (* Restored *)
+      | SPECFunBindX of FunId * Spec * StrExp * FunBind option
 
 
   (* Top-level declarations [Figures 5 and 8] *)

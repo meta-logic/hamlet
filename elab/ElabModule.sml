@@ -632,6 +632,8 @@ struct
           error(loc A, "inconsistent type names");
         FunIdMap.extend(F, funid |-> (T, (E, (T', E'))))
       end --> elab A
+    | elabFunBind (B, SPECFunBindX(binding)@@A) = elabFunBind(B, D.SPECFunBind'(binding)@@A)
+
 
 
   (* Top-level Declarations *)

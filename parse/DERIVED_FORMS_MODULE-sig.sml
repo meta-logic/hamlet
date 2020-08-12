@@ -70,6 +70,8 @@ sig
         SyntaxModule.FunBind'
   val SPECFunBind :
       FunId * Spec * StrExp * FunBind option -> SyntaxModule.FunBind'
+  val SPECFunBind' :
+      FunId * Spec * StrExp * FunBind option -> SyntaxModule.FunBind'
   val COLONSPECFunBind :
       FunId * Spec * SigExp * StrExp * FunBind option -> SyntaxModule.FunBind'
   val SEALSPECFunBind :

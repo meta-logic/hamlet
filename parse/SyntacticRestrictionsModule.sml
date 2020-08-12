@@ -325,6 +325,7 @@ struct
         else
           FunIdMap.insert(F, funid, E2)
       end
+    | checkFunBind (B, SPECFunBindX(binding)@@A) = checkFunBind(B, D.SPECFunBind'(binding)@@A)
 
 
   (* Top-level Declarations *)

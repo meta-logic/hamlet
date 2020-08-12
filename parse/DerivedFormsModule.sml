@@ -62,7 +62,9 @@ struct
         FunBind(funid, strid, sigexp, sealExp, funbind_opt)
       end
 
-  fun SPECFunBind(funid, spec, strexp, funbind_opt) =
+  fun SPECFunBind(funid, spec, strexp, funbind_opt) = SPECFunBindX(funid, spec, strexp, funbind_opt)
+
+  fun SPECFunBind'(funid, spec, strexp, funbind_opt) =
       let
         val strid   = StrId.invent()
         val sigexp  = SIGSigExp(spec)@@at(spec)

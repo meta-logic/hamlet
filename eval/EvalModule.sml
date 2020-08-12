@@ -389,6 +389,7 @@ struct
       in
         FunIdMap.insert(F, funid, FunctorClosure((strid, I), strexp, B))
       end
+    | evalFunBind (B, SPECFunBindX(binding)@@A) = evalFunBind(B, D.SPECFunBind'(binding)@@A)
 
 
   (* Functor Declarations *)
