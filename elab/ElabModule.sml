@@ -23,6 +23,7 @@ struct
   open StaticObjectsModule
   open StaticObjectsCore
   open Error
+  structure D = DerivedFormsModule
 
 
   (* Helpers for basis modification and side conditions *)
@@ -367,6 +368,7 @@ struct
       in
         StaticEnv.fromSE SE
       end --> elab A
+    | elabSpec (B, SYNSpecX(syndesc)@@A) = elabSpec(B, D.SYNSpec'(syndesc)@@A)
     | elabSpec(B, INCLUDESpec(sigexp)@@A) =
       (* [Rule 75] *)
       let

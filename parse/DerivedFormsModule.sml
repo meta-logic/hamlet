@@ -8,7 +8,7 @@
  * Notes: see DERIVED_FORMS_MODULE-sig.sml
  *)
 
-structure DerivedFormsModule :> DERIVED_FORMS_MODULE =
+structure DerivedFormsModule : DERIVED_FORMS_MODULE =
 struct
   (* Import *)
 
@@ -89,8 +89,9 @@ struct
 
 
   (* Specifications [Figure 19] *)
+  fun SYNSpec(syndescs) = SYNSpecX(syndescs)
 
-  fun SYNSpec(syndescs@@_) =
+  fun SYNSpec'(syndescs@@_) =
       let
         val (lastTyvarseq, _, lastTy) = List.hd(List.rev syndescs)
 

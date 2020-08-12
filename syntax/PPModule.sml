@@ -11,6 +11,7 @@ struct
   open SyntaxModule
   open Annotation
   open PPSyntax
+  structure D = DerivedFormsModule
 
 
   (* Identifiers *)
@@ -94,6 +95,8 @@ struct
         ppElem(out, i, "STRUCTURESpec", A, [sub ppStrDesc strdesc])
     | ppSpec(out, i, INCLUDESpec(sigexp)@@A) =
         ppElem(out, i, "INCLUDESpec", A, [sub ppSigExp sigexp])
+    | ppSpec (out, i, SYNSpecX(syndesc)@@A) = 
+      ppSpec(out, i, D.SYNSpec'(syndesc)@@A)
     | ppSpec(out, i, EMPTYSpec@@A) =
         ppElem(out, i, "EMPTYSpec", A, [])
     | ppSpec(out, i, SEQSpec(spec1, spec2)@@A) =
@@ -109,6 +112,7 @@ struct
         ppElem(out, i, "ValDesc", A,
           [sub PPCore.ppVId vid, sub PPCore.ppTy ty,
             subo ppValDesc valdesc_opt])
+
 
   and ppTypDesc(out, i, TypDesc(tyvarseq, tycon, typdesc_opt)@@A) =
         ppElem(out, i, "TypDec", A,

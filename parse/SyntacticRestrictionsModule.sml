@@ -15,6 +15,8 @@ struct
   open BindingObjectsModule
   open Error
 
+  structure D = DerivedFormsModule
+
 
   (* Helpers *)
 
@@ -169,6 +171,7 @@ struct
         BindingEnv.fromSE(checkStrDesc(B, strdesc))
     | checkSpec(B, INCLUDESpec(sigexp)@@A) =
         checkSigExp(B, sigexp)
+    | checkSpec (B, SYNSpecX(syndesc)@@A) = checkSpec(B, D.SYNSpec'(syndesc)@@A)
     | checkSpec(B, EMPTYSpec@@A) =
         BindingEnv.empty
     | checkSpec(B, SEQSpec(spec1, spec2)@@A) =

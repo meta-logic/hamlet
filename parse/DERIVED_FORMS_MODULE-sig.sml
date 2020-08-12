@@ -78,6 +78,7 @@ sig
   (* Specifications [Figure 19] *)
 
   val SYNSpec          : SynDesc -> SyntaxModule.Spec'
+  val SYNSpec'         : SynDesc -> SyntaxModule.Spec'
   val INCLUDEMULTISpec : SigId list -> SyntaxModule.Spec'
 
   val SynDesc          : TyVar seq * TyCon * Ty * SynDesc option -> SynDesc'

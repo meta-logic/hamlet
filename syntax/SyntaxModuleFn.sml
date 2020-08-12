@@ -108,6 +108,8 @@ struct
     | SEQSpec         of Spec * Spec
     | SHARINGTYPESpec of Spec * longTyCon list
     | SHARINGSpec     of Spec * longStrId list
+  (* Restored *)
+    | SYNSpecX of ((TyVar seq * TyCon * Ty) list, unit) phrase
 
   and ValDesc' =
       ValDesc of VId * Ty * ValDesc option

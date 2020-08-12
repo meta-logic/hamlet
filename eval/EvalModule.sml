@@ -25,6 +25,7 @@ struct
   open DynamicObjectsModule
   open Error
 
+  structure D = DerivedFormsModule
   type State = EvalCore.State
 
 
@@ -282,6 +283,8 @@ struct
       in
         I
       end
+    | evalSpec (IB, SYNSpecX(syndesc)@@A) = 
+      evalSpec(IB, D.SYNSpec'(syndesc)@@A)
     | evalSpec(IB, EMPTYSpec@@A) =
       (* [Rule 174] *)
       let
