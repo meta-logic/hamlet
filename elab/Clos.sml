@@ -13,6 +13,7 @@ struct
   open SyntaxCore
   open AnnotationCore
   open StaticObjectsCore
+  open DerivedFormsCore
 
 
   (* Check whether a pattern binds an identifier *)
@@ -133,6 +134,9 @@ struct
     | hasNonExpansiveRHS C (vid, RECValBind(_)@@_) =
         (* A rec valbind can only contain functions. *)
         true
+    | hasNonExpansiveRHS C (vid, FValBindX(vid', match, arity, fvalbind_opt)@@A) =
+      hasNonExpansiveRHS C (vid, FvalBind''((match, vid', arity), fvalbind_opt)@@A)
+
 
   fun Clos (C, valbind) VE =
       let

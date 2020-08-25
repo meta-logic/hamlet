@@ -249,19 +249,16 @@ struct
       in
         FcnClosure(match, E, VIdMap.empty)
       end
-    | evalExp((s, E), exp@@A) = let
-      val exp' = 
-        (case exp of
-          CASEExpX(exp1, match) => D.CASEExp'(exp1, match)
-          | IFExpX(exp1, exp2, exp3) => D.IFExp'(exp1, exp2, exp3)
-          | ORELSEExpX(exp1, exp2) => D.ORELSEExp'(exp1, exp2)
-          | ANDALSOExpX(exp1, exp2) => D.ANDALSOExp'(exp1, exp2)
-          | INFIXExpX (exp, atexp) => APPExp(exp, atexp))
-    in
-      evalExp((s, E), exp'@@A)
-    end
-
-
+    | evalExp((s, E), CASEExpX(exp1, match)@@A) =
+      evalExp((s, E), D.CASEExp'(exp1, match)@@A)
+    | evalExp((s, E), IFExpX(exp1, exp2, exp3)@@A) =
+      evalExp((s, E), D.IFExp'(exp1, exp2, exp3)@@A)
+    | evalExp((s, E), ANDALSOExpX(exp1, exp2)@@A) =
+      evalExp((s, E), D.ANDALSOExp'(exp1, exp2)@@A)
+    | evalExp((s, E), ORELSEExpX(exp1, exp2)@@A) =
+      evalExp((s, E), D.ORELSEExp'(exp1, exp2)@@A)
+    | evalExp((s, E), INFIXExpX(exp, atexp)@@A) =
+      evalExp((s, E), APPExp(exp, atexp)@@A)
 
   (* Matches *)
 
@@ -289,14 +286,24 @@ struct
 
   and evalMrule((s, E, v), Mrule(pat, exp)@@A) =
       (* [Rule 112] *)
-      let
+      (let
         val VE = evalPat((s, E, v), pat)
         val v' = evalExp((s, E plusVE VE), exp)
       in
         v'
       end handle FAIL =>
         (* [Rule 113] *)
-        raise FAIL
+        raise FAIL)
+    | evalMrule ((s, E, v), FmruleX(pat, ty_opt, exp)@@A) = 
+      let
+          val exp =
+              case ty_opt of
+                  NONE => exp
+                | SOME ty => COLONExp(exp, ty)@@over(ty, exp)
+      in
+          evalMrule ((s, E, v), Mrule(pat, exp)@@A)
+      end
+
 
 
   (* Declarations *)
@@ -397,6 +404,8 @@ struct
       in
         DynamicEnv.Rec VE
       end
+    | evalValBind ((s, E), FValBindX(vid, match, arity, valbind_opt)@@A)  =
+      evalValBind ((s, E), D.FvalBind''((match, vid, arity), valbind_opt)@@A)
 
 
   (* Type Bindings *)

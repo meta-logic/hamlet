@@ -126,19 +126,16 @@ struct
         checkExp(C, exp)
     | checkExp(C, FNExp(match)@@A) =
         checkMatch(C, match)
-    | checkExp(C, exp@@A) = 
-      let
-        val exp' = 
-          (case exp of
-            CASEExpX(exp1, match) => D.CASEExp'(exp1, match)
-            | IFExpX(exp1, exp2, exp3) => D.IFExp'(exp1, exp2, exp3)
-            | ORELSEExpX(exp1, exp2) => D.ORELSEExp'(exp1, exp2)
-            | ANDALSOExpX(exp1, exp2) => D.ANDALSOExp'(exp1, exp2)
-            | INFIXExpX (exp, atexp) => APPExp(exp, atexp))
-        in
-          checkExp(C, exp'@@A)
-        end
-
+    | checkExp(C, CASEExpX(exp1, match)@@A) =
+      checkExp(C, D.CASEExp'(exp1, match)@@A)
+    | checkExp(C, IFExpX(exp1, exp2, exp3)@@A) =
+      checkExp(C, D.IFExp'(exp1, exp2, exp3)@@A)
+    | checkExp(C, ANDALSOExpX(exp1, exp2)@@A) =
+      checkExp(C, D.ANDALSOExp'(exp1, exp2)@@A)
+    | checkExp(C, ORELSEExpX(exp1, exp2)@@A) =
+      checkExp(C, D.ORELSEExp'(exp1, exp2)@@A)
+    | checkExp(C, INFIXExpX(exp, atexp)@@A) =
+      checkExp(C, APPExp(exp, atexp)@@A)
 
   (* Matches *)
 
@@ -155,6 +152,15 @@ struct
         val VE = checkPat false (C, pat)
       in
         checkExp(C plusVE VE, exp)
+      end
+    | checkMrule (C, FmruleX(pat, ty_opt, exp)@@A) =
+      let
+          val exp =
+              case ty_opt of
+                  NONE => exp
+                | SOME ty => COLONExp(exp, ty)@@over(ty, exp)
+      in
+          checkMrule (C, Mrule(pat, exp)@@A)
       end
 
 
@@ -249,7 +255,8 @@ struct
       in
         checkValBind(C plusVE VE1, valbind)
       end
-
+    | checkValBind (C, FValBindX(vid, match, arity, valbind_opt)@@A) =
+      recValBind(C, D.FvalBind''((match, vid, arity), valbind_opt)@@A)
 
   (* Type Bindings *)
 
@@ -516,6 +523,8 @@ struct
       end
     | recValBind(C, RECValBind(valbind)@@A) =
         recValBind(C, valbind)
+    | recValBind (C, FValBindX(vid, match, arity, valbind_opt)@@A) =
+      recValBind(C, D.FvalBind''((match, vid, arity), valbind_opt)@@A)
 
   and recPat(C, ATPat(atpat)@@A) =
         recAtPat(C,  atpat)
@@ -529,6 +538,8 @@ struct
       in
         VIdMap.insert(VE, vid, IdStatus.v)
       end
+    | recPat (C, INFIXPatX(_, longvid, atpat)@@A) =
+      recAtPat(C, atpat)
 
   and recAtPat(C, WILDCARDAtPat@@A) =
         VIdMap.empty

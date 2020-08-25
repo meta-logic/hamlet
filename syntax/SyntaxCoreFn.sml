@@ -92,7 +92,6 @@ struct
     | IFExpX      of Exp * Exp * Exp
     | ANDALSOExpX of Exp * Exp 
     | ORELSEExpX  of Exp * Exp 
-
     | INFIXExpX of Exp * AtExp
 
 
@@ -103,7 +102,7 @@ struct
 
   and Mrule' =
       Mrule of Pat * Exp
-
+      | FmruleX of Pat * Ty option * Exp
 
   (* Declarations [Figures 2 and 4] *)
 
@@ -125,6 +124,10 @@ struct
   and ValBind' =
       PLAINValBind of Pat * Exp * ValBind option
     | RECValBind   of ValBind
+    | FValBindX    of VId * Match * int * ValBind option
+
+  (* and FValBind' = *)
+  (*     FValBindX of Fmatch * FValBind option *)
 
   and TypBind' =
       TypBind of TyVar seq * TyCon * Ty * TypBind option

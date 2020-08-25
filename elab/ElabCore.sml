@@ -273,19 +273,16 @@ struct
         push(#matches D, (Context.Eof C, match));
         tau
       end --> elab A
-    | elabExp D (C, exp@@A) = let
-      val exp' = 
-        (case exp of
-          CASEExpX(exp1, match) => D.CASEExp'(exp1, match)
-          | IFExpX(exp1, exp2, exp3) => D.IFExp'(exp1, exp2, exp3)
-          | ORELSEExpX(exp1, exp2) => D.ORELSEExp'(exp1, exp2)
-          | ANDALSOExpX(exp1, exp2) => D.ANDALSOExp'(exp1, exp2)
-          | INFIXExpX (exp, atexp) => APPExp(exp, atexp))
-    in
-      elabExp D (C, exp'@@A)
-    end
-
-
+    | elabExp D (C, CASEExpX(exp1, match)@@A) =
+      elabExp D (C, D.CASEExp'(exp1, match)@@A)
+    | elabExp D (C, IFExpX(exp1, exp2, exp3)@@A) =
+      elabExp D (C, D.IFExp'(exp1, exp2, exp3)@@A)
+    | elabExp D (C, ANDALSOExpX(exp1, exp2)@@A) =
+      elabExp D (C, D.ANDALSOExp'(exp1, exp2)@@A)
+   | elabExp D (C, ORELSEExpX(exp1, exp2)@@A) =
+      elabExp D (C, D.ORELSEExp'(exp1, exp2)@@A)
+    | elabExp D (C, INFIXExpX(exp, atexp)@@A) =
+      elabExp D (C, APPExp(exp, atexp)@@A)
 
   (* Matches *)
 
@@ -315,6 +312,15 @@ struct
             error(loc A, "inconsistent type names");
         Type.fromFunType(tau, tau')
       end --> elab A
+    | elabMrule D (C, FmruleX(pat, ty_opt, exp)@@A) = 
+      let
+          val exp =
+              case ty_opt of
+                  NONE => exp
+                | SOME ty => COLONExp(exp, ty)@@over(ty, exp)
+      in
+          elabMrule D (C, Mrule(pat, exp)@@A)
+      end
 
 
   (* Declarations *)
@@ -463,6 +469,8 @@ struct
             error(loc A, "invalid introduction of type names");
         VE
       end --> elab A
+    | elabValBind D (C, FValBindX(vid, match, arity, valbind_opt)@@A)  =
+      elabValBind D (C, D.FvalBind''((match, vid, arity), valbind_opt)@@A)
 
 
   (* Type Bindings *)
@@ -770,6 +778,8 @@ struct
       end
     | recValBind(C, RECValBind(valbind)@@A) =
         recValBind(C, valbind)
+    | recValBind (C, FValBindX(vid, match, arity, valbind_opt)@@A) =
+      recValBind(C, D.FvalBind''((match, vid, arity), valbind_opt)@@A)
 
   and recPat(C, ATPat(atpat)@@A) =
         recAtPat(C, atpat)
@@ -779,6 +789,7 @@ struct
         recPat(C, pat)
     | recPat(C, ASPat(_, vid@@_, ty_opt, pat)@@A) =
         VIdMap.insert(recPat(C, pat), vid, (([], Type.guess false), IdStatus.v))
+    | recPat (C, INFIXPatX(pat)@@A) = recPat(C, CONPat(pat)@@A)
 
   and recAtPat(C, WILDCARDAtPat@@A) =
         VIdMap.empty
@@ -794,6 +805,8 @@ struct
         ?recPatRow(C, patrow_opt) VIdMap.empty
     | recAtPat(C, PARAtPat(pat)@@A) =
         recPat(C, pat)
+    | recAtPat (C, UNITAtPatX@@A) = 
+      VIdMap.empty
     | recAtPat(C, TUPLEAtPatX(pats)@@A) = 
         (case pats of
           [] => VIdMap.empty

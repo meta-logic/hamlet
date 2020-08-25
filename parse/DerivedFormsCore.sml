@@ -370,8 +370,10 @@ struct
 
 
   (* Function-value Bindings [Figure 17] *)
-
   fun FvalBind((match, vid, arity)@@A, fvalbind_opt) =
+      FValBindX(vid, match, arity, fvalbind_opt)
+
+  fun FvalBind'((match, vid, arity)@@A, fvalbind_opt) =
       let
         fun abstract(0, vidExps) =
             let
@@ -393,6 +395,30 @@ struct
         PLAINValBind(idPat(vid), abstract(arity, []), fvalbind_opt)
       end
 
+  fun FvalBind''((match, vid, arity), fvalbind_opt) =
+      let
+          fun abstract(0, vidExps) =
+              let
+                  val tupAtExp = TUPLEAtExp(List.rev vidExps)@@left(match)
+              in
+                  CASEExp(atExp(tupAtExp), match)@@at(match)
+              end
+            | abstract(n, vidExps) =
+              let
+                  val vid   = VId.invent()
+                  val exp   = idExp(vid@@left(match))
+                  val pat   = idPat(vid@@left(match))
+                  val body  = abstract(n-1, exp::vidExps)
+                  val mrule = Mrule(pat, body)@@at(pat)
+              in
+                  FNExp(Match(mrule, NONE)@@at(mrule))@@at(mrule)
+              end
+      in
+          PLAINValBind(idPat(vid), abstract(arity, []), fvalbind_opt)
+      end
+
+
+
   fun Fmatch((mrule, vid, arity)@@A, NONE) =
         (Match(mrule, NONE)@@at(mrule), vid, arity)
     | Fmatch((mrule, vid@@A, arity)@@_, SOME((match, vid'@@_, arity')@@A')) =
@@ -404,6 +430,14 @@ struct
           (Match(mrule, SOME match)@@over(mrule, match), vid@@A, arity)
 
   fun Fmrule(op_opt, vid, atpats, ty_opt, exp) =
+      let
+          val pat = atPat(TUPLEAtPat(List.map atPat atpats)@@overAll(atpats))
+          val arity = List.length atpats
+      in
+          (FmruleX(pat, ty_opt, exp)@@over(pat, exp), vid, arity)
+      end
+
+  fun Fmrule'(op_opt, vid, atpats, ty_opt, exp) =
       let
         val pat = atPat(TUPLEAtPat(List.map atPat atpats)@@overAll(atpats))
         val exp =
@@ -417,14 +451,17 @@ struct
 
 
   (* Declarations [Figure 17] *)
-
   fun FUNDec(tyvarseq, fvalbind) =
+      VALDec(tyvarseq, fvalbind)
+
+
+  fun FUNDec'(tyvarseq, fvalbind) =
         let
           val annot = at(fvalbind)
           val fixed = tl annot
           val fixed = tl fixed
           val fixed = tl fixed
-          val _ = set (hd fixed, true)          
+          val _ = set (hd fixed, true)
         in
           VALDec(tyvarseq, RECValBind(fvalbind)@@annot)
         end

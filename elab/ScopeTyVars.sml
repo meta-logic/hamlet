@@ -59,18 +59,16 @@ struct
         unguardedTyVarsExp exp
     | unguardedTyVarsExp(FNExp(match)@@_) =
         unguardedTyVarsMatch match
-    | unguardedTyVarsExp(exp@@A) = 
-      let
-        val exp' = 
-          (case exp of
-               CASEExpX(exp1, match) => D.CASEExp'(exp1, match)
-              | IFExpX(exp1, exp2, exp3) => D.IFExp'(exp1, exp2, exp3)
-              | ORELSEExpX(exp1, exp2) => D.ORELSEExp'(exp1, exp2)
-              | ANDALSOExpX(exp1, exp2) => D.ANDALSOExp'(exp1, exp2)
-              | INFIXExpX(exp, atexp) => APPExp(exp, atexp)) 
-      in
-        unguardedTyVarsExp(exp'@@A)
-      end
+    | unguardedTyVarsExp(CASEExpX(exp1, match)@@A) = 
+      unguardedTyVarsExp(D.CASEExp'(exp1, match)@@A)
+    | unguardedTyVarsExp(IFExpX(exp1, exp2, exp3)@@A) = 
+      unguardedTyVarsExp(D.IFExp'(exp1, exp2, exp3)@@A)
+    | unguardedTyVarsExp(ORELSEExpX(exp1, exp2)@@A) = 
+      unguardedTyVarsExp(D.ORELSEExp'(exp1, exp2)@@A)
+    | unguardedTyVarsExp(ANDALSOExpX(exp1, exp2)@@A) = 
+      unguardedTyVarsExp(D.ANDALSOExp'(exp1, exp2)@@A)
+    | unguardedTyVarsExp(INFIXExpX(exp, atexp)@@A) = 
+      unguardedTyVarsExp(APPExp(exp, atexp)@@A)
 
 
   and unguardedTyVarsMatch(Match(mrule, match_opt)@@_) =
@@ -78,6 +76,9 @@ struct
 
   and unguardedTyVarsMrule(Mrule(pat, exp)@@_) =
         unguardedTyVarsPat pat + unguardedTyVarsExp exp
+    | unguardedTyVarsMrule (FmruleX(pat, ty_opt, exp)@@_) = 
+      unguardedTyVarsPat pat + ?unguardedTyVarsTy ty_opt +
+      unguardedTyVarsExp exp
 
   and unguardedTyVarsDec(VALDec(_, _)@@_) =
         TyVarSet.empty
@@ -105,6 +106,8 @@ struct
           ?unguardedTyVarsValBind valbind_opt
     | unguardedTyVarsValBind(RECValBind(valbind)@@_) =
         unguardedTyVarsValBind valbind
+    | unguardedTyVarsValBind (FValBindX(vid, match, _, valbind_opt)@@_) = 
+      unguardedTyVarsMatch match + ?unguardedTyVarsValBind valbind_opt
 
   and unguardedTyVarsExBind(NEWExBind(_, vid, ty_opt, exbind_opt)@@_) =
         ?unguardedTyVarsTy ty_opt + ?unguardedTyVarsExBind exbind_opt

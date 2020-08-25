@@ -171,7 +171,7 @@ struct
       in
           PARAtPat(conPat)@@at(conPat)
       end
-    | conPat'(_, _@@A) = error(loc A, "misplaced atomic pattern'")
+    | conPat'(_, _@@A) = error(loc A, "misplaced atomic pattern")
 
 
   fun pairPat(atpat1, atpat2) =
@@ -227,6 +227,8 @@ struct
                   error(loc A, "misplaced parenthesised pattern")
               | TUPLEAtPatX(_)@@A =>
                   error(loc A, "misplaced tuple pattern")
+              | LISTAtPatX(_)@@A => 
+                error(loc A, "misplaced list pattern")
 
 
         fun maybeParenthesisedInfixClause ps =

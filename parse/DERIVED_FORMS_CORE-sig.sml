@@ -92,6 +92,8 @@ sig
   (* Function-value bindings [Figure 17] *)
 
   val FvalBind : Fmatch * FvalBind option -> FvalBind'
+  val FvalBind' : Fmatch * FvalBind option -> FvalBind'
+  val FvalBind'' : Fmatch' * FvalBind option -> FvalBind'
   val Fmatch   : Fmrule * Fmatch option -> Fmatch'
   val Fmrule   : Op option * VId * AtPat list * Ty option * Exp -> Fmrule'
 

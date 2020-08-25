@@ -114,6 +114,9 @@ struct
   and matchMrule(E, desc, Mrule(pat, exp)@@A, match_opt, sets) =
         matchPat(E, desc, pat, MATCH'(loc A, match_opt),
           extend(sets, #matches, loc A))
+    | matchMrule (E, desc, FmruleX(pat, ty_opt, exp)@@A, match_opt, sets) = 
+      matchPat(E, desc, pat, MATCH'(loc A, match_opt),
+               extend(sets, #matches, loc A))
 
   and matchAtPat(E, desc, atpat@@A, context, sets) =
       case atpat of
@@ -137,7 +140,9 @@ struct
             matchPatRowOpt(E, desc, patrow_opt, context, sets)
         | PARAtPat(pat) =>
             matchPat(E, desc, pat, context, sets)
-        | TUPLEAtPatX(pats) => 
+        | UNITAtPatX =>
+          matchAtPat(E, desc, D.UNITAtPat'@@A, context, sets)
+        | TUPLEAtPatX(pats) =>
             matchAtPat(E, desc, D.TUPLEAtPat'(pats)@@A, context, sets)
         | LISTAtPatX(pats) =>
             matchAtPat(E, desc, D.LISTAtPat'(pats)@@A, context, sets)

@@ -99,6 +99,8 @@ struct
 
   and ppMrule(out, i, Mrule(pat, exp)@@A) =
         ppElem(out, i, "Mrule", A, [sub ppPat pat, sub ppExp exp])
+    | ppMrule (out, i, FmruleX(pat, ty_opt, exp)@@A) = 
+      ppElem(out, i, "FmruleX", A, [sub ppPat pat, subo ppTy ty_opt, sub ppExp exp])
 
 
   (* Declarations *)
@@ -131,6 +133,9 @@ struct
           [sub ppPat pat, sub ppExp exp, subo ppValBind valbind_opt])
     | ppValBind(out, i, RECValBind(valbind)@@A) =
         ppElem(out, i, "RECValBind", A, [sub ppValBind valbind])
+    | ppValBind(out, i, FValBindX(vid, match, _, valbind_opt)@@A) =
+      ppElem(out, i, "FValBindX", A,
+             [sub ppVId vid, sub ppMatch match, subo ppValBind valbind_opt])
 
   and ppTypBind(out, i, TypBind(tyvarseq, tycon, ty, typbind_opt)@@A) =
         ppElem(out, i, "TypBind", A,
