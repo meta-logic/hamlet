@@ -127,6 +127,8 @@ struct
         ppElem(out, i, "EMPTYDec", A, [])
     | ppDec(out, i, SEQDec(dec1, dec2)@@A) =
         ppElem(out, i, "SEQDec", A, [sub ppDec dec1, sub ppDec dec2])
+    | ppDec (out, i, FUNDecX(tyvarseq, valbind)@@A) =
+      ppElem(out, i, "FUNDecX", A, [sub ppTyVarseq tyvarseq, sub ppValBind valbind])
 
   and ppValBind(out, i, PLAINValBind(pat, exp, valbind_opt)@@A) =
         ppElem(out, i, "PLAINValBind", A,

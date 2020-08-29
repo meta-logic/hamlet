@@ -100,6 +100,8 @@ struct
         TyVarSet.empty
     | unguardedTyVarsDec(SEQDec(dec1, dec2)@@_) =
         unguardedTyVarsDec dec1 + unguardedTyVarsDec dec2
+    | unguardedTyVarsDec (FUNDecX(_, _)@@_) =
+      TyVarSet.empty
 
   and unguardedTyVarsValBind(PLAINValBind(pat, exp, valbind_opt)@@_) =
         unguardedTyVarsPat pat + unguardedTyVarsExp exp +

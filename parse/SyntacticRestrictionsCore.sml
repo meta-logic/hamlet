@@ -229,6 +229,8 @@ struct
       in
         E1 plus E2
       end
+    | checkDec (C, FUNDecX(dec)@@A) = 
+      checkDec (C, D.FUNDec'(dec)@@A)
 
 
   (* Value Bindings *)
