@@ -127,8 +127,12 @@ struct
         ppElem(out, i, "EMPTYDec", A, [])
     | ppDec(out, i, SEQDec(dec1, dec2)@@A) =
         ppElem(out, i, "SEQDec", A, [sub ppDec dec1, sub ppDec dec2])
-    | ppDec (out, i, FUNDecX(tyvarseq, valbind)@@A) =
-      ppElem(out, i, "FUNDecX", A, [sub ppTyVarseq tyvarseq, sub ppValBind valbind])
+    | ppDec (out, i, FUNDecX(expList, tyvarseq, valbind)@@A) =
+      let 
+        val exps = List.map (fn e => sub ppExp e) expList
+      in 
+        ppElem(out, i, "FUNDecX", A,exps@[sub ppTyVarseq tyvarseq, sub ppValBind valbind])
+      end
 
   and ppValBind(out, i, PLAINValBind(pat, exp, valbind_opt)@@A) =
         ppElem(out, i, "PLAINValBind", A,

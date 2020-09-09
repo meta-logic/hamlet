@@ -100,7 +100,7 @@ sig
   (* Declarations [Figure 17] *)
 
   val FUNDec              : TyVar seq * FvalBind -> SyntaxCore.Dec'
-  val FUNDec'              : TyVar seq * FvalBind -> SyntaxCore.Dec'
+  val FUNDec'             : TyVar seq * FvalBind -> SyntaxCore.Dec'
   val DATATYPEWITHTYPEDec : DatBind * TypBind option -> SyntaxCore.Dec'
   val ABSTYPEWITHTYPEDec  : DatBind * TypBind option * Dec -> SyntaxCore.Dec'
 end;

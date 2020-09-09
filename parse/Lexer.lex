@@ -145,8 +145,8 @@
 
 %%
 
+  
   <INITIAL>{formatting}	=> ( continue() );
-
 
   <INITIAL>"#"		=> ( token(yypos, yytext, HASH) );
   <INITIAL>"("		=> ( token(yypos, yytext, LPAR) );
@@ -167,6 +167,11 @@
   <INITIAL>"|"		=> ( token(yypos, yytext, BAR) );
   <INITIAL>"}"		=> ( token(yypos, yytext, RBRACE) );
 
+
+  <INITIAL>"(!!"	=> ( token(yypos, yytext, LASSERT) );
+  <INITIAL>"!!)"	=> ( token(yypos, yytext, RASSERT) );
+  <INITIAL>"REQUIRES"	=> ( token(yypos, yytext, REQUIRES) );
+  <INITIAL>"ENSURES"	=> ( token(yypos, yytext, ENSURES) );
   <INITIAL>"abstype"	=> ( token(yypos, yytext, ABSTYPE) );
   <INITIAL>"and"	=> ( token(yypos, yytext, AND) );
   <INITIAL>"andalso"	=> ( token(yypos, yytext, ANDALSO) );

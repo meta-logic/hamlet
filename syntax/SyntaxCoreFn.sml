@@ -117,7 +117,7 @@ struct
     | OPENDec      of longStrId list
     | EMPTYDec
     | SEQDec       of Dec * Dec
-    | FUNDecX      of TyVar seq * ValBind
+    | FUNDecX      of Exp list * TyVar seq * ValBind
 
 
   (* Bindings [Figures 2 and 4] *)

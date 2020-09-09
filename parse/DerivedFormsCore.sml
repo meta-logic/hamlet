@@ -452,7 +452,7 @@ struct
 
   (* Declarations [Figure 17] *)
   fun FUNDec(tyvarseq, fvalbind) =
-      FUNDecX(tyvarseq, fvalbind)
+      FUNDecX([], tyvarseq, fvalbind)
 
 
   fun FUNDec'(tyvarseq, fvalbind) =

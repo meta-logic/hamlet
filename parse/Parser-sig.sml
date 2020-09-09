@@ -28,6 +28,10 @@ val SHARING:  'a * 'a -> (svalue,'a) token
 val INCLUDE:  'a * 'a -> (svalue,'a) token
 val FUNCTOR:  'a * 'a -> (svalue,'a) token
 val EQTYPE:  'a * 'a -> (svalue,'a) token
+val ENSURES:  'a * 'a -> (svalue,'a) token
+val REQUIRES:  'a * 'a -> (svalue,'a) token
+val RASSERT:  'a * 'a -> (svalue,'a) token
+val LASSERT:  'a * 'a -> (svalue,'a) token
 val HASH:  'a * 'a -> (svalue,'a) token
 val ARROW:  'a * 'a -> (svalue,'a) token
 val DARROW:  'a * 'a -> (svalue,'a) token

@@ -437,8 +437,8 @@ struct
       in
         StaticEnv.plus(E1, E2)
       end --> elab A
-    | elabDec level (C, FUNDecX(dec)@@A) = 
-      elabDec level (C, D.FUNDec'(dec)@@A)
+    | elabDec level (C, FUNDecX(_,dec1,dec2)@@A) = 
+      elabDec level (C, D.FUNDec'(dec1,dec2)@@A)
 
 
   (* Value Bindings *)

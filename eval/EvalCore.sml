@@ -381,8 +381,8 @@ struct
       in
         E1 plus E2
       end
-    | evalDec ((s, E), FUNDecX(dec)@@A) = 
-      evalDec ((s, E), D.FUNDec'(dec)@@A)
+    | evalDec ((s, E), FUNDecX(_, dec1, dec2)@@A) = 
+      evalDec ((s, E), D.FUNDec'(dec1, dec2)@@A)
 
 
   (* Value Bindings *)
