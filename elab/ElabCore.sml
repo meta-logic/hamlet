@@ -284,6 +284,7 @@ struct
     | elabExp D (C, INFIXExpX(exp, atexp)@@A) =
       elabExp D (C, APPExp(exp, atexp)@@A)
 
+
   (* Matches *)
 
   and elabMatch D (C, Match(mrule, match_opt)@@A) =
@@ -304,7 +305,8 @@ struct
       (* [Rule 14] *)
       let
         val (VE, tau) = elabPat D (C, pat)
-        val tau'      = elabExp D (C plusVE VE, exp)
+        
+        val tau'      = elabExp D (C plusVE VE, exp)   (*   <--------------- where the exception is called*)
       in
         check(TyNameSet.isSubset(StaticEnv.tynamesVE VE, Context.Tof C))
           handle Check =>
@@ -437,8 +439,67 @@ struct
       in
         StaticEnv.plus(E1, E2)
       end --> elab A
-    | elabDec level (C, FUNDecX(_,dec1,dec2)@@A) = 
-      elabDec level (C, D.FUNDec'(dec1,dec2)@@A)
+    | elabDec level (C, FUNDecX(conts, tyvarseq, fvalbind)@@A) = 
+      if (List.length conts) = 0 
+      then elabDec level (C, D.FUNDec'(tyvarseq, fvalbind)@@A)
+      else
+      let
+        (*val VALDec(tyvarseq', valbind)@@A = D.FUNDec'(tyvarseq, fvalbind)@@A*)
+        (*val f = elabDec level (C,  D.FUNDec'(tyvarseq, fvalbind)@@A)*)
+        (*----------------------------------------------------------*)
+        (* Setting the context for e1*)
+    (*    val alphas = tyvars(tyvarseq)
+        val U =
+            TyVarSet.union(
+              TyVarSet.fromList alphas,
+              TyVarSet.difference(
+                ScopeTyVars.unguardedTyVars fvalbind, Context.Uof C))
+        fun getENV v c=
+          case v of
+            RECValBind(v2)@@A => 
+                                  let
+                                    val VE_rec  = recValBind(c, v2)
+                                  in
+                                    getENV v2 (c plusVE VE_rec)
+                                  end
+            
+          | _ => c
+        *)
+        (*val expFvalbind = D.ContContext(List.hd conts, fvalbind)*)
+        (*val _ = print(loc A, expFvalbind)*)
+        (*val f = elabDec level (C,  EMPTYDec@@A)*)
+
+
+
+        val D  = deferred level
+        val _ = TextIO.print("--------------------Before---------------------")
+        val e1 = elabMrule D (C, D.ContPat(List.hd conts, fvalbind))
+        val _ = TextIO.print("--------------------After---------------------")
+        (*val e1 = elabValBind D (C plusU U, expFvalbind)*)
+        (*val env = getENV valbind (C plusU U)*)
+(*        val x = PrettyPrint.toString (PPStaticEnv.ppExEnv VE_rec, 10000000)
+        val _ = print(loc A, x) *)
+        (*----------------------------------------------------------*)
+
+        (* We need to find a way to call elabValBind on our exps *)
+
+        (* findLongVId is where "unknown identifier "is prented, 
+         * it's called from elanAtexp which is called from elabExp.
+         * This means the context is still not correct (I guess),
+         * becuase FUNDec' converts fvalbind to RECValBind, which when 
+         * elabValBind is called on it, it changes the context again.
+         * We need to construct  valbind (defined in parser)?
+         * and then call elabValBind on it?
+         * Or maybe from the start we add our expression to exps in valBind or fvalBind, 
+         * This way we might also add exp2 somehow and also solve the evaluation phase
+         *)
+
+        (*val e1 = elabExp D (env, List.hd conts)*)
+        (*val e2 = elabExp D (C plusU U, List.last conts)*)
+      in
+
+        elabDec level (C, D.FUNDec'(tyvarseq, fvalbind)@@A)
+      end 
 
 
   (* Value Bindings *)

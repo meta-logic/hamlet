@@ -486,4 +486,41 @@ struct
         ABSTYPEDec(datbind',
           SEQDec(typeDec, dec)@@over(typeDec, dec))
       end
+
+
+  fun ContContext(exp: Exp, fvalbind: ValBind): ValBind =
+    
+    case fvalbind of
+    
+      PLAINValBind( P, E@@AE, VO )@@A => PLAINValBind(P, IFExpX(exp, E@@AE, E@@copy(AE))@@copy(AE) , VO)@@A (* the second X is just for now*)
+
+    | RECValBind( V )@@A =>  RECValBind(ContContext(exp, V))@@A
+    
+    | FValBindX( id, Match( Mr, MO)@@B, i, VO)@@A =>  
+    
+    ( case Mr of
+    
+         Mrule( P, E@@AE)@@C => FValBindX( id, Match( Mrule( P, IFExpX(exp, E@@AE, E@@copy(AE))@@copy(AE) )@@C, MO)@@B, i, VO)@@A (* What should be Annoattion of IFExpX*)
+    
+      | FmruleX( P, TO, E@@AE)@@C => FValBindX( id, Match( FmruleX( P, TO, IFExpX(exp, E@@AE, E@@copy(AE))@@copy(AE) )@@C, MO)@@B, i, VO)@@A )
+
+
+
+
+  fun ContPat(exp: Exp, fvalbind: ValBind): Mrule =
+    
+    case fvalbind of
+    
+      PLAINValBind( P@@AP, E, VO )@@A => FmruleX(P@@copy(AP), NONE, exp)@@at(exp)
+
+    | RECValBind( V )@@A =>  ContPat(exp, V)
+    
+    | FValBindX( id, Match( Mr, MO)@@B, i, VO)@@A =>  
+    
+    ( case Mr of
+    
+         Mrule( P@@AP, E)@@C => FmruleX( P@@copy(AP), NONE, exp)@@at(exp) 
+    
+      | FmruleX( P@@AP, TO, E)@@C => FmruleX( P@@copy(AP), NONE , exp)@@at(exp) )
+
 end;
