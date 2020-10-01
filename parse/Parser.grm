@@ -575,17 +575,11 @@
       @@A(VALleft, valbindright) )
     | VAL tyvarseq1 valbind
   ( VALDec(tyvarseq1, valbind)@@A(VALleft, valbindright) )
-    
-
     | contract FUN fvalbind
   ( FUNDecX(contract, Seq[]@@A(defaultPos, defaultPos), fvalbind)
       @@A(FUNleft, fvalbindright) )
-    
-
     | contract FUN tyvarseq1 fvalbind
   ( FUNDecX(contract, tyvarseq1, fvalbind)@@A(FUNleft, fvalbindright) )
-    
-
     | TYPE typbind
   ( TYPEDec(typbind)@@A(TYPEleft, typbindright) )
     | DATATYPE datbind0 WITHTYPE_typbind_opt

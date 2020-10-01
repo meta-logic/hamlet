@@ -103,6 +103,8 @@ sig
   val FUNDec'             : TyVar seq * FvalBind -> SyntaxCore.Dec'
   val DATATYPEWITHTYPEDec : DatBind * TypBind option -> SyntaxCore.Dec'
   val ABSTYPEWITHTYPEDec  : DatBind * TypBind option * Dec -> SyntaxCore.Dec'
-  val ContContext         : SyntaxCore.Exp * FvalBind -> FvalBind
+  val copyPat             : Pat -> Pat
+  val copyAtPat           : AtPat -> AtPat
+  val copyPatRow          : PatRow -> PatRow
   val ContPat             : SyntaxCore.Exp * FvalBind -> Mrule
 end;

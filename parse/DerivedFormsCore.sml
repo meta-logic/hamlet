@@ -487,40 +487,56 @@ struct
           SEQDec(typeDec, dec)@@over(typeDec, dec))
       end
 
+  fun copyPat(ATPat(A)@@AP) = 
+      ATPat(copyAtPat(A))@@copy(AP)
+    | copyPat(CONPat(O, lvid@@AI, A)@@AP) = 
+      CONPat(O, lvid@@copy(AI), copyAtPat(A))@@copy(AP)  
+    | copyPat(COLONPat(p, ty)@@AP) = 
+      COLONPat(copyPat(p), copyTy(ty))@@copy(AP)
+    | copyPat(INFIXPatX(O, lvid@@AI, A)@@AP) = 
+      INFIXPatX(O, lvid@@copy(AI), copyAtPat(A))@@copy(AP) 
+    | copyPat(ASPat(O, vid@@AI, tyo, p)@@AP) = 
+      ASPat(O, vid@@copy(AI), if Option.isSome tyo
+      then SOME (copyTy(Option.valOf(tyo))) 
+      else tyo, copyPat(p))@@copy(AP)
 
-  fun ContContext(exp: Exp, fvalbind: ValBind): ValBind =
-    
-    case fvalbind of
-    
-      PLAINValBind( P, E@@AE, VO )@@A => PLAINValBind(P, IFExpX(exp, E@@AE, E@@copy(AE))@@copy(AE) , VO)@@A (* the second X is just for now*)
+  and copyAtPat(WILDCARDAtPat@@AP) = 
+      WILDCARDAtPat@@copy(AP)
+    | copyAtPat(SCONAtPat(s@@AS)@@AP) = 
+      SCONAtPat(s@@copy(AS))@@copy(AP)
+    | copyAtPat(IDAtPat(O, lvid@@AI)@@AP) = 
+      IDAtPat(O, lvid@@copy(AI))@@copy(AP)
+    | copyAtPat(PARAtPat(p)@@AP) = 
+      PARAtPat(copyPat(p))@@copy(AP)
+    | copyAtPat(UNITAtPatX@@AP) = 
+      UNITAtPatX@@copy(AP)
+    | copyAtPat(LISTAtPatX(pL)@@AP) = 
+      LISTAtPatX(List.map (fn x => copyPat x) pL)@@copy(AP)
+    | copyAtPat(TUPLEAtPatX(pL)@@AP) = 
+      TUPLEAtPatX(List.map (fn x => copyPat x) pL)@@copy(AP)
+    | copyAtPat(RECORDAtPat(PO)@@AP) = 
+      RECORDAtPat(if Option.isSome PO
+      then SOME (copyPatRow(Option.valOf(PO)))
+      else PO)@@copy(AP)
 
-    | RECValBind( V )@@A =>  RECValBind(ContContext(exp, V))@@A
+  and copyPatRow(DOTSPatRow@@AP) = 
+      DOTSPatRow@@copy(AP)
+    | copyPatRow(FIELDPatRow(l@@AL, p, pro)@@AP) = 
+      FIELDPatRow(l@@copy(AL), copyPat(p), pro)@@copy(AP)  
     
-    | FValBindX( id, Match( Mr, MO)@@B, i, VO)@@A =>  
-    
-    ( case Mr of
-    
-         Mrule( P, E@@AE)@@C => FValBindX( id, Match( Mrule( P, IFExpX(exp, E@@AE, E@@copy(AE))@@copy(AE) )@@C, MO)@@B, i, VO)@@A (* What should be Annoattion of IFExpX*)
-    
-      | FmruleX( P, TO, E@@AE)@@C => FValBindX( id, Match( FmruleX( P, TO, IFExpX(exp, E@@AE, E@@copy(AE))@@copy(AE) )@@C, MO)@@B, i, VO)@@A )
-
-
-
 
   fun ContPat(exp: Exp, fvalbind: ValBind): Mrule =
-    
-    case fvalbind of
-    
-      PLAINValBind( P@@AP, E, VO )@@A => FmruleX(P@@copy(AP), NONE, exp)@@at(exp)
+    let
+      val EA = annotation(exp)
+    in
+      case fvalbind of
+        PLAINValBind( P, E, VO )@@A => FmruleX( copyPat(P), NONE, exp)@@copy(EA)
+      | RECValBind( V )@@A =>  ContPat(exp, V)
+      | FValBindX( id, Match( Mr, MO)@@B, i, VO)@@A =>  
+      ( case Mr of
+           Mrule( P, E)@@C => FmruleX( copyPat(P), NONE, exp)@@copy(EA)
+        | FmruleX( P, TO, E)@@C => FmruleX( copyPat(P), NONE , exp)@@copy(EA) )
+      end
 
-    | RECValBind( V )@@A =>  ContPat(exp, V)
-    
-    | FValBindX( id, Match( Mr, MO)@@B, i, VO)@@A =>  
-    
-    ( case Mr of
-    
-         Mrule( P@@AP, E)@@C => FmruleX( P@@copy(AP), NONE, exp)@@at(exp) 
-    
-      | FmruleX( P@@AP, TO, E)@@C => FmruleX( P@@copy(AP), NONE , exp)@@at(exp) )
 
 end;
