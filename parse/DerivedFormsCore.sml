@@ -487,6 +487,8 @@ struct
           SEQDec(typeDec, dec)@@over(typeDec, dec))
       end
 
+  (* Helper functions for Assertions *)
+
   fun copyPat(ATPat(A)@@AP) = 
       ATPat(copyAtPat(A))@@copy(AP)
     | copyPat(CONPat(O, lvid@@AI, A)@@AP) = 
@@ -536,6 +538,29 @@ struct
       ( case Mr of
            Mrule( P, E)@@C => FmruleX( copyPat(P), NONE, exp)@@copy(EA)
         | FmruleX( P, TO, E)@@C => FmruleX( copyPat(P), NONE , exp)@@copy(EA) )
+      end
+
+  fun addResult(P@@AP: Pat):Pat =
+    let
+      val ATPat(TUPLEAtPatX(pL)@@AT)@@AP = P@@AP
+      val vid = VId.fromString "result"
+      val NW  = nowhere()
+      val r   = ATPat(idAtPat(vid@@NW))@@at(idAtPat(vid@@NW)) 
+    in
+      ATPat(TUPLEAtPatX(r::pL)@@AT)@@AP 
+    end
+
+  fun ContPatE(exp: Exp, fvalbind: ValBind): Mrule =
+    let
+      val EA = annotation(exp)
+    in
+      case fvalbind of
+        PLAINValBind( P, E, VO )@@A => FmruleX( copyPat(addResult P), NONE, exp)@@copy(EA)
+      | RECValBind( V )@@A =>  ContPat(exp, V)
+      | FValBindX( id, Match( Mr, MO)@@B, i, VO)@@A =>  
+      ( case Mr of
+           Mrule( P, E)@@C => FmruleX( copyPat(addResult P), NONE, exp)@@copy(EA)
+        | FmruleX( P, TO, E)@@C => FmruleX( copyPat(addResult P), NONE , exp)@@copy(EA) )
       end
 
 

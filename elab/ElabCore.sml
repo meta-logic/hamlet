@@ -191,9 +191,7 @@ struct
     | elabAtExp D (C, PARAtExp(exp)@@A) =
       (* [Rule 5] *)
       let
-        (*val _ = TextIO.print("--------------------Before1.2--------------------\n")*)
         val tau = elabExp D (C, exp)
-        (*val _ = TextIO.print("--------------------After1.2--------------------\n")*)
       in
         tau
       end --> elab A
@@ -220,18 +218,14 @@ struct
   and elabExp D (C, ATExp(atexp)@@A) =
       (* [Rule 7] *)
       let
-        (*val _ = TextIO.print("--------------------Before1.1--------------------\n")*)
         val tau = elabAtExp D (C, atexp)
-        (*val _ = TextIO.print("--------------------After1.1--------------------\n")*)
       in
         tau
       end --> elab A
     | elabExp D (C, APPExp(exp, atexp)@@A) =
       (* [Rule 8] *)
       let
-        (*val _ = TextIO.print("--------------------Before1.3--------------------\n")*)
         val tau_exp = elabExp D (C, exp)
-        (*val _ = TextIO.print("--------------------After1.3--------------------\n")*)
         val tau'    = elabAtExp D (C, atexp)
         val tau     = Type.guess false
       in
@@ -289,9 +283,7 @@ struct
       elabExp D (C, D.ORELSEExp'(exp1, exp2)@@A)
     | elabExp D (C, INFIXExpX(exp, atexp)@@A) =
       let
-        (*val _ = TextIO.print("--------------------Before1.4--------------------\n")*)
         val f = elabExp D (C, APPExp(exp, atexp)@@A)
-        (*val _ = TextIO.print("--------------------After1.4--------------------\n")*)
       in
         f
       end
@@ -317,11 +309,8 @@ struct
   and elabMrule D (C, Mrule(pat, exp)@@A) =
       (* [Rule 14] *)
       let
-        (*val _ = TextIO.print("--------------------BeforePat2.1--------------------\n")*)
         val (VE, tau) = elabPat D (C, pat)
-        (*val _ = TextIO.print("--------------------Before2.1--------------------\n")*)
-        val tau'      = elabExp D (C plusVE VE, exp)   (*   <--------------- where the exception is called*)
-        (*val _ = TextIO.print("--------------------After2.2---------------------\n")*)
+        val tau'      = elabExp D (C plusVE VE, exp)   
       in
         check(TyNameSet.isSubset(StaticEnv.tynamesVE VE, Context.Tof C))
           handle Check =>
@@ -461,6 +450,7 @@ struct
       let
         val D  = deferred level
         val e1 = elabMrule D (C, D.ContPat(List.hd conts, fvalbind))
+        val e2 = elabMrule D (C, D.ContPatE(List.hd (List.tl conts), fvalbind))
       in
         elabDec level (C, D.FUNDec'(tyvarseq, fvalbind)@@A)
       end 
@@ -631,11 +621,9 @@ struct
     | elabAtPat D (C, RECORDAtPat(patrow_opt)@@A) =
       (* [Rule 36] *)
       let
-        (*val _ = TextIO.print("--------------------Before2.3--------------------\n")*)
         val (VE, rho) =
             ?(elabPatRow D) (C, patrow_opt) (VIdMap.empty, Type.emptyRow)
         val tau_rho = Type.fromRowType rho
-        (*val _ = TextIO.print("--------------------After2.3--------------------\n")*)
       in
         push(#unresolved D, (loc A, tau_rho, NONE));
         (VE, tau_rho)
@@ -643,9 +631,7 @@ struct
     | elabAtPat D (C, PARAtPat(pat)@@A) =
       (* [Rule 37] *)
       let
-        (*val _ = TextIO.print("--------------------Before2.4--------------------\n")    *)
         val (VE, tau) = elabPat D (C, pat)
-        (*val _ = TextIO.print("--------------------After2.4--------------------\n")*)
       in
         (VE, tau)
       end --> elab A
@@ -688,9 +674,7 @@ struct
   and elabPat D (C, ATPat(atpat)@@A) =
       (* [Rule 40] *)
       let
-        (*val _ = TextIO.print("--------------------Before2.2--------------------\n")*)
         val (VE, tau) = elabAtPat D (C, atpat)
-        (*val _ = TextIO.print("--------------------After2.2--------------------\n")*)
       in
         (VE, tau)
       end --> elab A
