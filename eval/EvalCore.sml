@@ -381,14 +381,12 @@ struct
       in
         E1 plus E2
       end
-    | evalDec ((s, E), FUNDecX(conts, tyvarseq, fvalbind)@@A) =
+    | evalDec ((s, E), FUNDecX((defs, conts), tyvarseq, fvalbind)@@A) =
       if (List.length conts) = 0 
       then evalDec ((s, E), D.FUNDec'(tyvarseq, fvalbind)@@A)
       else
       let
         val f = evalDec ((s, E), D.FUNDec'(tyvarseq, fvalbind)@@A)
-        (*val e1 = evalExp ((s, E), List.hd conts)*)
-        (*val e2 = evalExp ((s, E), List.last conts)*)
       in
         f
       end

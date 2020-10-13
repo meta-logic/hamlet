@@ -110,6 +110,4 @@ sig
   val copyAtPat           : AtPat -> AtPat
   val copyPatRow          : PatRow -> PatRow
   val ContPat             : SyntaxCore.Exp * FvalBind -> Mrule
-  val addResult           : Pat -> Pat
-  val ContPatE            : SyntaxCore.Exp * FvalBind -> Mrule
 end;

@@ -443,14 +443,19 @@ struct
       in
         StaticEnv.plus(E1, E2)
       end --> elab A
-    | elabDec level (C, FUNDecX(conts, tyvarseq, fvalbind)@@A) = 
+    | elabDec level (C, FUNDecX((defs, conts), tyvarseq, fvalbind)@@A) = 
       if (List.length conts) = 0 
       then elabDec level (C, D.FUNDec'(tyvarseq, fvalbind)@@A)
       else
       let
         val D  = deferred level
-        val e1 = elabMrule D (C, D.ContPat(List.hd conts, fvalbind))
-        val e2 = elabMrule D (C, D.ContPatE(List.hd (List.tl conts), fvalbind))
+        val def = List.hd defs
+        val req = List.hd conts
+        val ens = List.hd (List.tl conts)
+        val mruleReq = D.ContPat(req, def)
+        val mruleEns = D.ContPat(ens, def)
+        val e1 = elabMrule D (C, mruleReq)
+        val e2 = elabMrule D (C, mruleEns)
       in
         elabDec level (C, D.FUNDec'(tyvarseq, fvalbind)@@A)
       end 

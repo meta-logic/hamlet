@@ -127,7 +127,7 @@
   | OF | OP | OPEN | ORELSE | RAISE | REC | THEN | TYPE | VAL
   | WITH | WITHTYPE | WHILE
   | LPAR | RPAR | LBRACK | RBRACK | LBRACE | RBRACE | COMMA | COLON | SEMICOLON
-  | DOTS | UNDERBAR | BAR | EQUALS | DARROW | ARROW | HASH | LASSERT | RASSERT
+  | DOTS | UNDERBAR | BAR | EQUALS | DARROW | DDARROW| ARROW | HASH | LASSERT | RASSERT
   | REQUIRES | ENSURES
 
   (* Additional reserved words for the modules language [Section 3.1] *)
@@ -350,7 +350,10 @@
   | popLocalInfix      of unit
 
   (* Contracts *)
-  | contract of Exp list
+  | contract of FvalBind list * Exp list
+  | fvalbindC of FvalBind
+  | fmatchC of Fmatch
+  | fmruleC of Fmrule
 
 %%
 
@@ -365,9 +368,6 @@
 
   (* Special constants [Section 2.2] *)
 
-  contract:
-     LASSERT REQUIRES COLON exp SEMICOLON ENSURES COLON exp SEMICOLON RASSERT ([exp1, exp2])
-    | (* empty *) ([] : Exp list)
 
   scon:
       ZERO  ( SCon.INT(SCon.DEC, "0")@@A(ZEROleft, ZEROright) )
@@ -1373,3 +1373,32 @@
   program_opt:
       program'     ( SOME program' )
     | (* empty *)  ( NONE )
+
+
+  (* Contracts *)
+
+  contract:
+     LASSERT fvalbindC SEMICOLON REQUIRES COLON exp SEMICOLON ENSURES COLON exp SEMICOLON RASSERT (([fvalbindC], [exp1, exp2]))
+    | (* empty *) (([], []) : FvalBind list * Exp list)
+
+  fvalbindC:
+      fmatchC
+  ( FvalBind(fmatchC, NONE)
+      @@A(fmatchCleft, fmatchCright) )
+
+  fmatchC:
+      fmruleC
+  ( Fmatch(fmruleC, NONE)@@A(fmruleCleft, fmruleCright) )
+
+  fmruleC:
+      atpat_list1 DDARROW atpat
+  ( let
+      val (op_opt, vid, atpats) = Infix.parseFmrule(!J, atpat_list1@[atpat])
+      val vid' = VId.fromString ""
+      val NW = A(atpatleft, atpatright)
+      val iD = IDAtExp(NONE, LongVId.fromId(vid')@@NW)@@NW
+      val e:Exp = ATExp(iD)@@NW
+    in
+      Fmrule(op_opt, vid, atpats, NONE, e)
+        @@A(atpat_list1left, atpatright)
+    end )

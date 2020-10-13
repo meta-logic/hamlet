@@ -34,6 +34,7 @@ val RASSERT:  'a * 'a -> (svalue,'a) token
 val LASSERT:  'a * 'a -> (svalue,'a) token
 val HASH:  'a * 'a -> (svalue,'a) token
 val ARROW:  'a * 'a -> (svalue,'a) token
+val DDARROW:  'a * 'a -> (svalue,'a) token
 val DARROW:  'a * 'a -> (svalue,'a) token
 val EQUALS:  'a * 'a -> (svalue,'a) token
 val BAR:  'a * 'a -> (svalue,'a) token

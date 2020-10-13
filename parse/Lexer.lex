@@ -160,6 +160,7 @@
   <INITIAL>";"		=> ( token(yypos, yytext, SEMICOLON) );
   <INITIAL>"="		=> ( token(yypos, yytext, EQUALS) );
   <INITIAL>"=>"		=> ( token(yypos, yytext, DARROW) );
+  <INITIAL>"==>"   => ( token(yypos, yytext, DDARROW) );
   <INITIAL>"["		=> ( token(yypos, yytext, LBRACK) );
   <INITIAL>"]"		=> ( token(yypos, yytext, RBRACK) );
   <INITIAL>"_"		=> ( token(yypos, yytext, UNDERBAR) );
