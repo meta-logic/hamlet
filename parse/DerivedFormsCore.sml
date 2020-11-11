@@ -540,4 +540,5 @@ struct
         | FmruleX( P, TO, E)@@C => FmruleX( copyPat(P), NONE , exp)@@copy(EA) )
       end
 
+
 end;

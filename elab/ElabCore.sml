@@ -456,6 +456,39 @@ struct
         val mruleEns = D.ContPat(ens, def)
         val e1 = elabMrule D (C, mruleReq)
         val e2 = elabMrule D (C, mruleEns)
+
+
+        (* Check exp1 & exp2 are of type bool *)
+   
+        fun atExp(atexp)    = ATExp(atexp)@@at(atexp)
+        fun idAtExp(vid@@A) = IDAtExp(NONE, LongVId.fromId(vid)@@A)@@at(vid@@A)
+        fun idExp(vid)      = atExp(idAtExp(vid))
+
+        (*create dummy bool expression and elaborate them *)
+        val t = Type.fromConsType([], TyName.tyname("bool", 0, true, 2))
+
+(*        val boolType1 = elabExp D (C, idExp((VId.fromString "true")@@left(req)))
+        val boolType2 = elabExp D (C, idExp((VId.fromString "true")@@left(ens)))*)
+
+        (*val g = Type.guess fa   *)
+        exception H
+        val boolType1 = case (!e1) of
+                  FunType(p, e) => e
+                | _ => raise H
+
+        val boolType2 = case (!e2) of
+                  FunType(p, e) => e
+                | _ => raise H
+
+(*                  ConsType(_, t1) =>  TextIO.print(TyName.toString(t1))
+                | _ => TextIO.print("dfsdfsdfsdfsdsfsdf\n")*)
+
+        val _ = case (Type.equals(boolType1, t)) of
+                  true  => ()
+                | false => error(loc A, "REQUIRES expression is not of type bool");
+        val _ = case (Type.equals(boolType2, t)) of
+                  true  => ()
+                | false => error(loc A, "ENSURES expression is not of type bool");
       in
         elabDec level (C, D.FUNDec'(tyvarseq, fvalbind)@@A)
       end 

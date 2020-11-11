@@ -182,7 +182,7 @@ struct
     | ppAtPat(out, i, PARAtPat(pat)@@A) =
         ppElem(out, i, "PARAtPat", A, [sub ppPat pat])
     | ppAtPat(out, i, TUPLEAtPatX(pats)@@A) =
-        ppElem(out, i, "TUPLEXAtPat", A, [subs ppPat pats])
+        ppElem(out, i, "TUPLEAtPatX", A, [subs ppPat pats])
     | ppAtPat(out, i, LISTAtPatX(pats)@@A) =
         ppElem(out, i, "LISTAtPatX", A, [subs ppPat pats])        
 
