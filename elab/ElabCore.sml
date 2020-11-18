@@ -449,44 +449,37 @@ struct
       else
       let
         val D  = deferred level
+
         val def = List.hd defs
         val req = List.hd conts
         val ens = List.hd (List.tl conts)
+        
+        (* Create mrules for Req and Ens *)
         val mruleReq = D.ContPat(req, def)
         val mruleEns = D.ContPat(ens, def)
+        
+        (* Elaborate requires and ensures *)
         val e1 = elabMrule D (C, mruleReq)
         val e2 = elabMrule D (C, mruleEns)
 
-
         (* Check exp1 & exp2 are of type bool *)
-   
-        fun atExp(atexp)    = ATExp(atexp)@@at(atexp)
-        fun idAtExp(vid@@A) = IDAtExp(NONE, LongVId.fromId(vid)@@A)@@at(vid@@A)
-        fun idExp(vid)      = atExp(idAtExp(vid))
 
-        (*create dummy bool expression and elaborate them *)
+        (*create dummy bool Type *)
         val t = Type.fromConsType([], TyName.tyname("bool", 0, true, 2))
 
-(*        val boolType1 = elabExp D (C, idExp((VId.fromString "true")@@left(req)))
-        val boolType2 = elabExp D (C, idExp((VId.fromString "true")@@left(ens)))*)
+        (* Extract the type name of Ensures and Requires *)
+        val {tycon=typeName1, ...} = Type.tyname(e1) handle Type.Type => 
+            error(loc A, "REQUIRES expression is not of type bool")
+            
+        val {tycon=typeName2, ...} = Type.tyname(e2) handle Type.Type => 
+            error(loc A, "ENSURES expression is not of type bool")
 
-        (*val g = Type.guess fa   *)
-        exception H
-        val boolType1 = case (!e1) of
-                  FunType(p, e) => e
-                | _ => raise H
-
-        val boolType2 = case (!e2) of
-                  FunType(p, e) => e
-                | _ => raise H
-
-(*                  ConsType(_, t1) =>  TextIO.print(TyName.toString(t1))
-                | _ => TextIO.print("dfsdfsdfsdfsdsfsdf\n")*)
-
-        val _ = case (Type.equals(boolType1, t)) of
+        (* Check if the types of Req and Ens are bool *)
+        val _ = case typeName1 = "bool" of 
                   true  => ()
                 | false => error(loc A, "REQUIRES expression is not of type bool");
-        val _ = case (Type.equals(boolType2, t)) of
+
+        val _ = case typeName2 = "bool" of 
                   true  => ()
                 | false => error(loc A, "ENSURES expression is not of type bool");
       in
