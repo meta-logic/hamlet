@@ -448,6 +448,8 @@ struct
       then elabDec level (C, D.FUNDec'(tyvarseq, fvalbind)@@A)
       else
       let
+        val result = elabDec level (C, D.FUNDec'(tyvarseq, fvalbind)@@A)
+
         val D  = deferred level
 
         val def = List.hd defs
@@ -483,7 +485,7 @@ struct
                   true  => ()
                 | false => error(loc A, "ENSURES expression is not of type bool");
       in
-        elabDec level (C, D.FUNDec'(tyvarseq, fvalbind)@@A)
+        result
       end 
 
 
